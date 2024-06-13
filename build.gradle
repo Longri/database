@@ -1,0 +1,98 @@
+plugins {
+    id 'java'
+    id 'maven-publish'
+    id "com.github.ben-manes.versions" version "0.51.0"
+}
+
+group = 'de.longri'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+    maven {
+        url "https://nexus.longri.de/repository/maven-public/"
+        allowInsecureProtocol = true
+    }
+}
+
+ext {
+    junitVersion = '5.11.0-M2'
+}
+
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+dependencies {
+    implementation 'de.longri:crypto:1.0'
+    implementation 'org.slf4j:slf4j-api:2.1.0-alpha1'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.16.1'
+
+    implementation group: 'com.healthmarketscience.jackcess', name: 'jackcess', version: "4.0.6"
+    implementation 'mysql:mysql-connector-java:8.0.33'
+    implementation group: 'org.firebirdsql.jdbc', name: 'jaybird', version: '5.0.4.java11'
+
+
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.14'
+    implementation group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.14'
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+}
+
+test {
+    useJUnitPlatform()
+}
+
+if (file('gradle.properties.local').exists()) {
+    def props = new Properties()
+    file('gradle.properties.local').withInputStream { props.load(it) }
+    props.each { key, value -> project.ext.set(key, value) }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact("build/libs/" + rootProject.name + "-" + version + ".jar") {
+                extension 'jar'
+            }
+        }
+    }
+    repositories {
+        maven {
+            name 'deploy'
+            url deployRepoUrl
+            allowInsecureProtocol = true
+            credentials {
+                username = deployRepoUsername
+                password = deployRepoPassword
+            }
+        }
+    }
+}
+task _FAT_JAR(dependsOn: test, type: Jar) {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    manifest {
+        attributes 'Main-Class': 'com.longri'
+    }
+    from(configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }) {
+        exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+    }
+    with jar
+}
+task _CLEAN_TO_NEXUS {
+}
+task _BUILD_TO_NEXUS(dependsOn: _CLEAN_TO_NEXUS) {
+}
+task PUBLISH_TO_NEXUS(dependsOn: _BUILD_TO_NEXUS) {
+    println "PUBLISH_TO_NEXUS version $version"
+}
+_CLEAN_TO_NEXUS.dependsOn(clean)
+_BUILD_TO_NEXUS.dependsOn(_FAT_JAR)
+PUBLISH_TO_NEXUS.mustRunAfter(_FAT_JAR)
+PUBLISH_TO_NEXUS.dependsOn(publishAllPublicationsToDeployRepository)
+publishMavenPublicationToDeployRepository.dependsOn(_FAT_JAR)
+
+tasks.withType(Copy).all { duplicatesStrategy 'exclude' }
+tasks.withType(Jar).all { duplicatesStrategy 'exclude' }
