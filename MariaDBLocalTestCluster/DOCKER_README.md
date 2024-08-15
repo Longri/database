@@ -25,6 +25,7 @@ create testuser with all privileges
 
 ```bash
 CREATE USER 'admin'@'%' IDENTIFIED BY 'admin-pw';
+GRANT GRANT OPTION ON *.* TO 'admin'@'%';
 GRANT ALL PRIVILEGES ON *.* TO 'admin'@'%';
 FLUSH PRIVILEGES;
 \q

@@ -239,8 +239,8 @@ public class MySqlConnection extends DatabaseConnection {
                 result = statement.executeUpdate(createUser);
 
                 //set rights
-//                String grant = "GRANT ALL PRIVILEGES ON `" + databaseName + "`.* TO '" + user + "'@'%';";
-//                result = statement.executeUpdate(grant);
+                String grant = "GRANT ALL PRIVILEGES ON `" + databaseName + "`.* TO '" + user + "'@'%';";
+                result = statement.executeUpdate(grant);
 
                 statement.close();
                 connection.close();
