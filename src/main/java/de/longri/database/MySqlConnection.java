@@ -30,10 +30,11 @@ import java.util.Properties;
 public class MySqlConnection extends DatabaseConnection {
 
     private final Logger log = LoggerFactory.getLogger(MySqlConnection.class);
-    private final String address;
-    private final String port;
-    private final String databaseName;
-    private DatabaseUser user;
+    protected final String address;
+    protected final String port;
+    protected final String databaseName;
+    protected final String connectionString;
+    protected DatabaseUser user;
 
     public MySqlConnection(String address, String port, String databaseName, DatabaseUser user) throws GeneralSecurityException, UnsupportedEncodingException {
         super();
@@ -41,14 +42,14 @@ public class MySqlConnection extends DatabaseConnection {
         this.port = port;
         this.databaseName = databaseName;
         this.user = user;
+        connectionString= "jdbc:mysql://" + address + ":" + port + "/" + databaseName;
     }
 
     @Override
     protected Connection getConnection() throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
-        String connectionstring = "jdbc:mysql://" + address + ":" + port + "/" + databaseName;
         try {
-            return DriverManager.getConnection(connectionstring, getProperties());
+            return DriverManager.getConnection(connectionString, getProperties());
         } catch (GeneralSecurityException | IOException e) {
             e.printStackTrace();
         }
@@ -75,7 +76,7 @@ public class MySqlConnection extends DatabaseConnection {
     }
 
 
-    private Properties getProperties() throws GeneralSecurityException, IOException {
+    protected Properties getProperties() throws GeneralSecurityException, IOException {
         Properties properties = new Properties();
         properties.setProperty("user", user.getUserName());
         properties.setProperty("password", user.getUserPasswordDecrypted());
@@ -238,8 +239,8 @@ public class MySqlConnection extends DatabaseConnection {
                 result = statement.executeUpdate(createUser);
 
                 //set rights
-                String grant = "GRANT ALL PRIVILEGES ON `" + databaseName + "`.* TO '" + user + "'@'%';";
-                result = statement.executeUpdate(grant);
+//                String grant = "GRANT ALL PRIVILEGES ON `" + databaseName + "`.* TO '" + user + "'@'%';";
+//                result = statement.executeUpdate(grant);
 
                 statement.close();
                 connection.close();
@@ -248,5 +249,10 @@ public class MySqlConnection extends DatabaseConnection {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return "MySqlConnection: " + connectionString;
     }
 }

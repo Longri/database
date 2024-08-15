@@ -1,0 +1,100 @@
+  # https://github.com/hyeonsangjeon/mariadb-galera-cluster/blob/master/docker-compose.yml
+
+  version: '3'
+
+  services:
+    local-mariadb-node1:
+      image: hauptmedia/mariadb:10.1
+      hostname: local-mariadb-node1
+      container_name: local-mariadb-node1
+      environment:
+        MYSQL_ROOT_PASSWORD: 'iamgroot'
+        REPLICATION_PASSWORD: 'iamgroot'
+        GALERA: 'On'
+        NODE_NAME: local-mariadb-node1
+        CLUSTER_NAME: maria_cluster
+        CLUSTER_ADDRESS: gcomm://
+        TZ: 'Asia/Seoul'
+      ports:
+        - 13306:3306/tcp
+      volumes:
+        - ./galeranode1/mariadb:/var/lib/mysql
+        - ./sqldir:/docker-entrypoint-initdb.d
+      command:
+        --wait_timeout=28800
+        --character-set-server=utf8
+        --collation-server=utf8_general_ci
+        --max-allowed-packet=512M
+        --net-buffer-length=5048576
+        --wsrep-new-cluster
+      stdin_open: true
+      tty: true
+      privileged: true
+      ulimits:
+        nofile:
+          soft: 600000
+          hard: 640000
+
+
+    local-mariadb-node2:
+      image: hauptmedia/mariadb:10.1
+      hostname: local-mariadb-node2
+      container_name: local-mariadb-node2
+      links:
+        - local-mariadb-node1
+      environment:
+        REPLICATION_PASSWORD: 'iamgroot'
+        GALERA: 'On'
+        NODE_NAME: local-mariadb-node2
+        CLUSTER_NAME: maria_cluster
+        CLUSTER_ADDRESS: gcomm://local-mariadb-node1
+        TZ: 'Asia/Seoul'
+      ports:
+        - 23306:3306/tcp
+      volumes:
+        - ./galeranode2/mariadb:/var/lib/mysql
+      command:
+        --wait_timeout=28800
+        --character-set-server=utf8
+        --collation-server=utf8_general_ci
+        --max-allowed-packet=512M
+        --net-buffer-length=5048576
+      stdin_open: true
+      tty: true
+      privileged: true
+      depends_on:
+        - local-mariadb-node1
+      ulimits:
+        nofile:
+          soft: 600000
+          hard: 640000
+
+    local-mariadb-node3:
+      image: hauptmedia/mariadb:10.1
+      hostname: local-mariadb-node3
+      container_name: local-mariadb-node3
+      links:
+        - local-mariadb-node1
+      environment:
+        REPLICATION_PASSWORD: 'iamgroot'
+        GALERA: 'On'
+        NODE_NAME: local-mariadb-node3
+        CLUSTER_NAME: maria_cluster
+        CLUSTER_ADDRESS: gcomm://local-mariadb-node1
+        TZ: 'Asia/Seoul'
+      ports:
+        - 33306:3306/tcp
+      volumes:
+        - ./galeranode3/mariadb:/var/lib/mysql
+      command:
+        --wait_timeout=28800
+        --character-set-server=utf8
+        --collation-server=utf8_general_ci
+        --max-allowed-packet=512M
+        --net-buffer-length=5048576
+      stdin_open: true
+      tty: true
+      privileged: true
+      depends_on:
+        - local-mariadb-node1
+        - local-mariadb-node2
