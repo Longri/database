@@ -42,7 +42,7 @@ public class MySqlConnection extends DatabaseConnection {
         this.port = port;
         this.databaseName = databaseName;
         this.user = user;
-        connectionString= "jdbc:mysql://" + address + ":" + port + "/" + databaseName;
+        connectionString = "jdbc:mysql://" + address + ":" + port + "/" + databaseName;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class MySqlConnection extends DatabaseConnection {
 
     @Override
     public boolean tableExist(String uniqueID, String tblName) throws SQLException {
-        String sql = "SHOW TABLES LIKE '" + tblName + "';";
+        String sql = "SHOW TABLES FROM " + databaseName + " LIKE '" + tblName + "';";
         Statement stmt = null;
         try {
             try {
