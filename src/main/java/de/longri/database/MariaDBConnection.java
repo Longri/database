@@ -29,7 +29,7 @@ public class MariaDBConnection extends MySqlConnection {
         StringBuilder connectionStringBuilder = new StringBuilder("jdbc:mysql://");
 
         for (int i = 0; i < ClusterAdresses.length; i++) {
-            connectionStringBuilder.append(ClusterAdresses[i]).append(":").append(ClusterPorts[i]);
+            connectionStringBuilder.append(ClusterAdresses[i].trim()).append(":").append(ClusterPorts[i].trim());
             if (i < ClusterAdresses.length - 1)
                 connectionStringBuilder.append(",");
         }
