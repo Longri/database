@@ -74,6 +74,10 @@ public abstract class DatabaseConnection {
     private final ArrayList<String> OPEN_CONNECTION_IDs = new ArrayList<>();
 
     public void connect(String uniqueID) throws SQLException, ClassNotFoundException {
+        this.connect(uniqueID, true);
+    }
+
+    public void connect(String uniqueID, boolean fireEvent) throws SQLException, ClassNotFoundException {
         synchronized (OPEN_CONNECTION_IDs) {
 
             boolean NEW_CREATED_CONNECTION;
@@ -93,14 +97,19 @@ public abstract class DatabaseConnection {
             }
 
             //call listener
-            for (ConnectionListener listener : listeners) {
-                listener.databaseConnected(NEW_CREATED_CONNECTION, uniqueID, OPEN_CONNECTION_IDs);
-            }
+            if (fireEvent)
+                for (ConnectionListener listener : listeners) {
+                    listener.databaseConnected(NEW_CREATED_CONNECTION, uniqueID, OPEN_CONNECTION_IDs);
+                }
 
         }
     }
 
     public void disconnect(String uniqueID) throws SQLException {
+        this.disconnect(uniqueID, true);
+    }
+
+    public void disconnect(String uniqueID, boolean fireEvent) throws SQLException {
         synchronized (OPEN_CONNECTION_IDs) {
             if (connection == null) {
                 if (DEBUG) log.warn("Disconnect to a closed connection");
@@ -128,9 +137,10 @@ public abstract class DatabaseConnection {
             }
 
             //call listener
-            for (ConnectionListener listener : listeners) {
-                listener.databaseDisconnected(CLOSED_CONNECTION, uniqueID, OPEN_CONNECTION_IDs);
-            }
+            if (fireEvent)
+                for (ConnectionListener listener : listeners) {
+                    listener.databaseDisconnected(CLOSED_CONNECTION, uniqueID, OPEN_CONNECTION_IDs);
+                }
 
         }
     }

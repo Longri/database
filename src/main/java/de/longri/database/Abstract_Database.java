@@ -60,6 +60,20 @@ public abstract class Abstract_Database implements Database {
         }
     }
 
+
+    public void connect(String uniqueID, boolean fireEvent) throws SQLException, ClassNotFoundException {
+        connection.connect(uniqueID, fireEvent);
+    }
+
+
+    public void disconnect(String uniqueID, boolean fireEvent) {
+        try {
+            connection.disconnect(uniqueID, fireEvent);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public int executeUpdate(String uniqueID, String sql) throws SQLException {
         try {
@@ -196,6 +210,7 @@ public abstract class Abstract_Database implements Database {
     }
 
     public static final DateTimeFormatter SQL_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     public static LocalDateTime getDateTime(String dateTime) {
         if (dateTime == null || dateTime.isEmpty() || dateTime.equalsIgnoreCase("NULL")) {
             return null;
