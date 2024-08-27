@@ -13,8 +13,8 @@ import java.util.Date;
 
 public abstract class AbstractTableDataEntry {
 
-    protected ArrayList<NamedObjectProperty> properties = new ArrayList<>();
-    protected final AbstractTable TABLE;
+    public final ArrayList<NamedObjectProperty> properties = new ArrayList<>();
+    public final AbstractTable TABLE;
 
     protected AbstractTableDataEntry(ArrayList<NamedObjectProperty> properties, AbstractTable table) {
         TABLE = table;

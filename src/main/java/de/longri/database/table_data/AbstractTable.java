@@ -79,13 +79,13 @@ public abstract class AbstractTable<T extends AbstractTableDataEntry> implements
         DB, Disk, unknown
     }
 
-    protected Source SOURCE = Source.unknown;
+    public Source SOURCE = Source.unknown;
 
-    protected final String tableName;
+    public final String tableName;
 
-    protected final ArrayList<T> tableData = new ArrayList<>();
+    public final ArrayList<T> tableData = new ArrayList<>();
 
-    protected LocalDateTime lastModified = LocalDateTime.MAX;
+    public LocalDateTime lastModified = LocalDateTime.MAX;
 
     public AbstractTable() {
         this.tableName = getTableName();

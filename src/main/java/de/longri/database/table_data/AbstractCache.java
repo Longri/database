@@ -76,7 +76,7 @@ public abstract class AbstractCache {
 
     protected abstract AbstractTable<AbstractTableDataEntry>[] getTables();
 
-    protected File getCacheFolder() {
+    public File getCacheFolder() {
         File cacheFolder = new File(CACHE_FOLDER);
         if (!cacheFolder.exists()) {
             cacheFolder.mkdirs();
@@ -92,9 +92,7 @@ public abstract class AbstractCache {
         }
     }
 
-
-
-    protected void loadAllFromDB(DatabaseConnection connection) throws SQLException, ClassNotFoundException {
+    public void loadAllFromDB(DatabaseConnection connection) throws SQLException, ClassNotFoundException {
         log.debug("loadAllFromDB");
         chkTables();
         connection.connect(UNIQUE_ID_THREAD_DATA_LOAD_ALL);
@@ -121,7 +119,7 @@ public abstract class AbstractCache {
         table.setDbLastModify(lastModify);
     }
 
-    protected boolean loadAllFromDisk(DatabaseConnection connection) throws IOException,  SQLException, ClassNotFoundException {
+    public boolean loadAllFromDisk(DatabaseConnection connection) throws IOException,  SQLException, ClassNotFoundException {
         chkTables();
         File newCacheFile = new File(getCacheFolder(), "tables_cache.bin");
 
@@ -182,7 +180,7 @@ public abstract class AbstractCache {
         return anyChanges;
     }
 
-    protected void saveAllToDisk() throws IOException, NotImplementedException {
+    public void saveAllToDisk() throws IOException, NotImplementedException {
 
         log.debug("Write Cache to disk!");
 
