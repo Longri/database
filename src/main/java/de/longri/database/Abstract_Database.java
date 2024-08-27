@@ -22,6 +22,8 @@ package de.longri.database;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public abstract class Abstract_Database implements Database {
     final DatabaseConnection connection;
@@ -192,4 +194,21 @@ public abstract class Abstract_Database implements Database {
             }
         }
     }
+
+    public static final DateTimeFormatter SQL_DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    public static LocalDateTime getDateTime(String dateTime) {
+        if (dateTime == null || dateTime.isEmpty() || dateTime.equalsIgnoreCase("NULL")) {
+            return null;
+        }
+        return LocalDateTime.parse(dateTime, SQL_DATE_TIME_FORMATTER);
+    }
+
+    public static String getDateString(LocalDateTime dateTime) {
+        if (dateTime == null) {
+            return "NULL";
+        }
+        return SQL_DATE_TIME_FORMATTER.format(dateTime);
+    }
+
+
 }
