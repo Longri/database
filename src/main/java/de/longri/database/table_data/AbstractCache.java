@@ -18,6 +18,9 @@
  */
 package de.longri.database.table_data;
 
+import com.github.freva.asciitable.AsciiTable;
+import com.github.freva.asciitable.Column;
+import com.github.freva.asciitable.HorizontalAlign;
 import de.longri.database.Abstract_Database;
 import de.longri.database.DatabaseConnection;
 import de.longri.serializable.BitStore;
@@ -27,8 +30,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,7 +63,7 @@ public abstract class AbstractCache {
         this("./CACHE");
     }
 
-    public void forceReloadCache(DatabaseConnection connection) throws SQLException, IOException, ClassNotFoundException, NotImplementedException {
+    public void forceReloadCache(DatabaseConnection connection) throws SQLException, IOException, ClassNotFoundException, NotImplementedException, InterruptedException {
         synchronized (CACHE_FOLDER) {
             //first load lastModify map
             loadLAstModifiedFromDB(connection);
@@ -73,7 +78,13 @@ public abstract class AbstractCache {
             //first load lastModify map
             loadLAstModifiedFromDB(connection);
 
-            boolean anyChanges = loadAllFromDisk(connection);
+            boolean anyChanges = false;
+            try {
+                anyChanges = loadAllFromDisk(connection);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
             if (anyChanges) saveAllToDisk();
         }
     }
@@ -95,7 +106,6 @@ public abstract class AbstractCache {
         throw new RuntimeException("Table " + tableName + " not found");
     }
 
-
     protected abstract AbstractTable<AbstractTableDataEntry>[] getTables();
 
     public File getCacheFolder() {
@@ -114,13 +124,29 @@ public abstract class AbstractCache {
         }
     }
 
-    public void loadAllFromDB(DatabaseConnection connection) throws SQLException, ClassNotFoundException {
+    public void loadAllFromDB(DatabaseConnection connection) throws SQLException, ClassNotFoundException, InterruptedException {
         log.debug("loadAllFromDB");
         chkTables();
         connection.connect(UNIQUE_ID_THREAD_DATA_LOAD_ALL);
+        int numberOfThreads = 12;
+        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
+        CountDownLatch latch = new CountDownLatch(TABLES.size());
+
         for (AbstractTable<AbstractTableDataEntry> table : TABLES) {
-            loadTableFromDB(connection, table);
+            executorService.submit(() -> {
+                try {
+                    loadTableFromDB(connection, table);
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    // Zähler verringern, wenn die Aufgabe abgeschlossen ist
+                    latch.countDown();
+                }
+            });
         }
+        latch.await();
+        executorService.shutdown();
+
         connection.disconnect(UNIQUE_ID_THREAD_DATA_LOAD_ALL);
 
         logCacheInfo("Load Cache from DB");
@@ -133,15 +159,21 @@ public abstract class AbstractCache {
         table.clear();
 
         //load all data from table and store in an object
-        ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM " + tableName);
+
+        Statement st = connection.createStatement();
+
+        ResultSet rs = st.executeQuery("SELECT * FROM " + tableName);
         table.add(rs);
         table.SOURCE = AbstractTable.Source.DB;
+        table.SourceThread = Thread.currentThread().getName();
+        DatabaseMetaData metaData = st.getConnection().getMetaData();
+        table.SourceConnection = metaData.getURL();
 
         LocalDateTime lastModify = getLastModifiedOnDb(table.getTableName());
         table.setDbLastModify(lastModify);
     }
 
-    public boolean loadAllFromDisk(DatabaseConnection connection) throws IOException, SQLException, ClassNotFoundException {
+    public boolean loadAllFromDisk(DatabaseConnection connection) throws IOException, SQLException, ClassNotFoundException, InterruptedException {
         chkTables();
         File newCacheFile = new File(getCacheFolder(), "tables_cache.bin");
 
@@ -224,18 +256,23 @@ public abstract class AbstractCache {
             //cache is outdated, load from DB
             anyChanges = true;
 
-            ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM " + tableName);
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery("SELECT * FROM " + tableName);
             table.add(rs);
             table.SOURCE = AbstractTable.Source.DB;
+            table.SourceThread = Thread.currentThread().getName();
+            DatabaseMetaData metaData = st.getConnection().getMetaData();
+            table.SourceConnection = metaData.getURL();
 
         } else {
             table.loadFromDisk(getCacheFolder());
             table.SOURCE = AbstractTable.Source.Disk;
+            table.SourceThread = Thread.currentThread().getName();
+            table.SourceConnection = "HDD";
         }
         table.setDbLastModify(getLastModifiedOnDb(tableName));
         return anyChanges;
     }
-
 
     public void saveAllToDisk() throws IOException, NotImplementedException {
 
@@ -266,21 +303,31 @@ public abstract class AbstractCache {
         logCacheInfo("Write Cache to disk");
     }
 
-
     private void logCacheInfo(String infoName) {
         log.info("Cache info: " + infoName);
-        StringBuilder sb = new StringBuilder("+----------------------------------+---------+--------+----------+------------------------+\n" +
-                "|            TableName             | entries | fromDB | fromDisk |      last modify       |\n" +
-                "+----------------------------------+---------+--------+----------+------------------------+\n");
+//        StringBuilder sb = new StringBuilder("+----------------------------------+---------+--------+----------+------------------------+\n" +
+//                "|            TableName             | entries | fromDB | fromDisk |      last modify       |\n" +
+//                "+----------------------------------+---------+--------+----------+------------------------+\n");
+//
+//        for (AbstractTable<AbstractTableDataEntry> table : TABLES) {
+//            table.writeInfoTable(sb);
+//        }
+//
+//        sb.append("+----------------------------------+---------+--------+----------+------------------------+");
+//        log.info("\n" + sb.toString());
 
-        for (AbstractTable<AbstractTableDataEntry> table : TABLES) {
-            table.writeInfoTable(sb);
-        }
 
-        sb.append("+----------------------------------+---------+--------+----------+------------------------+");
-        log.info("\n" + sb.toString());
+        log.info("\n" + AsciiTable.getTable(TABLES, Arrays.asList(
+                new Column().header("Name").with(table -> table.tableName),
+                new Column().header("entries").with(table -> Integer.toString(table.tableData.size())),
+                new Column().header("fromDB").dataAlign(HorizontalAlign.CENTER).with(table -> table.SOURCE == AbstractTable.Source.Disk ? "" : table.SourceThread),
+                new Column().header("fromDisk").dataAlign(HorizontalAlign.CENTER).with(table -> table.SOURCE == AbstractTable.Source.DB ? "" : table.SourceThread),
+                new Column().header("last modify").with(table -> Abstract_Database.getDateString(table.lastModified)),
+                new Column().header("Connection").with(table -> table.SourceConnection)
+        )));
+
+
     }
-
 
     public static void deleteDirectory(File directoryToBeDeleted) {
         File[] allContents = directoryToBeDeleted.listFiles();

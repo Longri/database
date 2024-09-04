@@ -230,4 +230,18 @@ public class MariaDB_Cluster_Connection extends DatabaseConnection implements Po
         properties.put("characterEncoding", "utf-8");
         return properties;
     }
+
+
+    @Override
+    public Statement createStatement() throws SQLException {
+        //get a new connection every time
+        try {
+            Connection connection = getConnection();
+
+            Statement statement = connection.createStatement();
+            return statement;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

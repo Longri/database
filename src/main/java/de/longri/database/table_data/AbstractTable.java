@@ -39,50 +39,6 @@ public abstract class AbstractTable<T extends AbstractTableDataEntry> implements
 
     private final static Logger log = LoggerFactory.getLogger(AbstractTable.class);
 
-    public void writeInfoTable(StringBuilder sb) {
-        sb.append("| ");
-        sb.append(tableName);
-        append(33 - tableName.length(), sb);
-        sb.append("|");
-        String countString = Integer.toString(tableData.size());
-        append(8 - countString.length(), sb);
-        sb.append(countString);
-        sb.append(" |");
-        switch (SOURCE) {
-            case DB:
-                sb.append("    ✓   |");
-                break;
-            case Disk:
-                sb.append("        |");
-                break;
-            case unknown:
-                sb.append("    ?   |");
-                break;
-        }
-        switch (SOURCE) {
-            case DB:
-                sb.append("          |");
-                break;
-            case Disk:
-                sb.append("     ✓    |");
-                break;
-            case unknown:
-                sb.append("     ?    |");
-                break;
-        }
-        sb.append("  ");
-        sb.append(Abstract_Database.getDateString(this.lastModified));
-        sb.append("   |");
-
-        sb.append("\n");
-    }
-
-    private void append(int spaceCount, StringBuilder sb) {
-        for (int i = 0; i < spaceCount; i++) {
-            sb.append(" ");
-        }
-    }
-
     public boolean isEmpty() {
         return tableData.isEmpty();
     }
@@ -98,6 +54,10 @@ public abstract class AbstractTable<T extends AbstractTableDataEntry> implements
     }
 
     public Source SOURCE = Source.unknown;
+
+    public String SourceThread = "";
+
+    public String SourceConnection = "";
 
     public final String tableName;
 

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'de.longri'
-version = '1.4.0'
+version = '1.4.1'
 
 repositories {
     mavenCentral()
@@ -30,6 +30,8 @@ dependencies {
 
     implementation 'org.slf4j:slf4j-api:2.1.0-alpha1'
     implementation group: 'commons-io', name: 'commons-io', version: '2.16.1'
+
+    implementation 'com.github.freva:ascii-table:1.8.0'
 
     implementation group: 'com.healthmarketscience.jackcess', name: 'jackcess', version: "4.0.7"
     implementation 'mysql:mysql-connector-java:8.0.33'

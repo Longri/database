@@ -19,6 +19,7 @@
 package de.longri.database;
 
 import de.longri.database.table_data.AbstractTable;
+import de.longri.filetransfer.Local_FileTransferHandle;
 import de.longri.serializable.NotImplementedException;
 import de.longri.utils.NamedObjectProperty;
 import org.junit.jupiter.api.AfterAll;
@@ -67,8 +68,19 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
     @Test
     void clusterTableDataTest() throws GeneralSecurityException, IOException, SQLException, ClassNotFoundException, NotImplementedException {
 
-        TableDataTestCache CACHE = new TableDataTestCache("./TEST/Cache");
-        CACHE.loadCache(INSTANCE.getConnection());
+        String cachePath = "./TEST/Cache";
+
+        //delete cache before test
+        Local_FileTransferHandle cache = new Local_FileTransferHandle(cachePath);
+        cache.deleteDirectory();
+
+        assertFalse(cache.exists());
+
+        TableDataTestCache CACHE = new TableDataTestCache(cachePath);
+
+        DatabaseConnection con=INSTANCE.getConnection();
+
+        CACHE.loadCache(con);
 
         assertEquals(CACHE.getTable("Table1"), CACHE.table1);
         assertEquals(CACHE.getTable("Table2"), CACHE.table2);
@@ -184,7 +196,7 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
 
         //--------------------------Table 4 test
 
-        LocalDateTime NOW_TRUNCATED = getDockerTimestamp(INSTANCE.getConnection().getConnection());
+        LocalDateTime NOW_TRUNCATED = getDockerTimestamp(con.getConnection());
 
         assertEquals(3, CACHE.table4.tableData.size());
         TableDataTestCache.Table4_data data4 = CACHE.table4.tableData.get(0);
@@ -275,7 +287,7 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
 
         //--------------------------Table 1 test
         assertEquals(3, CACHE.table1.tableData.size());
-         data = CACHE.table1.tableData.get(0);
+        data = CACHE.table1.tableData.get(0);
         prop = data.getProperty("id");
         assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
         assertEquals(4, prop.get());
