@@ -1,5 +1,6 @@
 package de.longri.database.table_data;
 
+import de.longri.database.Abstract_Database;
 import de.longri.serializable.NotImplementedException;
 import de.longri.serializable.StoreBase;
 import de.longri.utils.NamedObjectProperty;
@@ -27,8 +28,8 @@ public abstract class AbstractTableDataEntry {
             }
 
             NamedObjectProperty newProp = getProperty(properties, col);
-            if(newProp!=null)
-            prop.set(newProp.getValue());
+            if (newProp != null)
+                prop.set(newProp.getValue());
             this.properties.add(prop);
         }
     }
@@ -48,27 +49,16 @@ public abstract class AbstractTableDataEntry {
                 prop.set(resultSet.getInt(col));
             } else if (prop instanceof NamedObjectProperty.NamedStringProperty) {
                 prop.set(resultSet.getString(col));
+            } else if (prop instanceof NamedObjectProperty.NamedDoubleProperty) {
+                prop.set(resultSet.getDouble(col));
             } else if (prop instanceof NamedObjectProperty.NamedLocalDateTimeProperty) {
-                Date dbDate = resultSet.getDate(col);
-                prop.set(dateToLocalDT(dbDate));
+                LocalDateTime dbDate = Abstract_Database.getDateTime(resultSet.getString(col));
+                prop.set(dbDate);
             }
             properties.add(prop);
         }
     }
 
-    public static final LocalDateTime dateToLocalDT(Date date) {
-        if (date == null) return null;
-
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1; // Monate in Calendar starten bei 0
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-        int second = calendar.get(Calendar.SECOND);
-        return LocalDateTime.of(year, month, day, hour, minute, second);
-    }
 
     protected AbstractTableDataEntry(StoreBase bitStore, AbstractTable table) throws SQLException, NotImplementedException {
         TABLE = table;
@@ -101,6 +91,9 @@ public abstract class AbstractTableDataEntry {
             prop.set(bitStore.readInt());
         } else if (propertyType == NamedStringProperty) {
             prop.set(bitStore.readString());
+        } else if (propertyType == NamedDoubleProperty) {
+            String value = bitStore.readString();
+            prop.set(Double.valueOf(value));
         } else if (propertyType == NamedLocalDateTimeProperty) {
             ((NamedObjectProperty.NamedLocalDateTimeProperty) prop).setFromString(bitStore.readString());
         } else {
@@ -124,6 +117,7 @@ public abstract class AbstractTableDataEntry {
     public static final int NamedIntegerProperty = 1;
     public static final int NamedStringProperty = 2;
     public static final int NamedLocalDateTimeProperty = 3;
+    public static final int NamedDoubleProperty = 4;
 
     public void serialize(StoreBase bitStore) throws NotImplementedException {
         bitStore.write(properties.size());
@@ -140,6 +134,10 @@ public abstract class AbstractTableDataEntry {
                 bitStore.write(NamedStringProperty);
                 bitStore.write(prop.getName());
                 bitStore.write(stringProperty.get());
+            } else if (prop instanceof NamedObjectProperty.NamedDoubleProperty doubleProperty) {
+                bitStore.write(NamedDoubleProperty);
+                bitStore.write(prop.getName());
+                bitStore.write(Double.toString(doubleProperty.get()));
             } else if (prop instanceof NamedObjectProperty.NamedLocalDateTimeProperty datetimeProperty) {
                 bitStore.write(NamedLocalDateTimeProperty);
                 bitStore.write(prop.getName());

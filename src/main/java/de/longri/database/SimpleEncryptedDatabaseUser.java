@@ -47,4 +47,18 @@ public class SimpleEncryptedDatabaseUser implements DatabaseUser {
     public String getUserPasswordDecrypted() throws GeneralSecurityException, IOException {
         return Crypto.decrypt(PASSWD);
     }
+
+    @Override
+    public String toString() {
+        return "SimpleEncryptedDatabaseUser: " + NAME;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o instanceof DatabaseUser user) {
+            return user.getUserName().equals(getUserName());
+        }
+        return false;
+    }
 }

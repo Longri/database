@@ -1,5 +1,7 @@
 package de.longri.database;
 
+import de.longri.fx.utils.SleepCall;
+
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.sql.*;
@@ -21,7 +23,15 @@ public class MariaDB_Cluster_Connection extends DatabaseConnection implements Po
         DATABASE_USER = user;
         HOST_LIST = hostList;
         pool = new ConnectionPool(this);
-        fillPool();
+        new SleepCall(200, () -> {
+            try {
+                fillPool();
+            } catch (SQLException | GeneralSecurityException | IOException e) {
+                e.printStackTrace();
+            }
+        });
+
+
     }
 
     private void fillPool() throws SQLException, GeneralSecurityException, IOException {

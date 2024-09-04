@@ -10,27 +10,43 @@ import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class MariaDB_Cluster_ConnectionTest extends JunitDefaults{
+class MariaDB_Cluster_ConnectionTest extends JunitDefaultsTestDB {
 
+    static MariaDB_Cluster_ConnectionTest INSTANCE = new MariaDB_Cluster_ConnectionTest();
+
+    @BeforeAll
+    static void setUp() throws SQLException, GeneralSecurityException, IOException, ClassNotFoundException, InterruptedException {
+        INSTANCE.instanceSetUp();
+    }
+
+    @AfterAll
+    static void tearDown() throws SQLException, GeneralSecurityException, IOException, ClassNotFoundException {
+        INSTANCE.instanceTearDown();
+    }
+
+
+    MariaDB_Cluster_ConnectionTest() {
+        super("ClusterTestDB");
+    }
 
 
     @Test
-    void getDatabaseName() {
-        assertEquals(databaseName, ClusterConnection.getDatabaseName());
+    void getDatabaseNameTest() {
+        assertEquals(INSTANCE.getDatabaseName(), INSTANCE.getConnection().getDatabaseName());
     }
 
     @Test
-    void getType() {
-        assertEquals(SQL_TYPE.MySql, ClusterConnection.getType());
+    void getTypeTest() {
+        assertEquals(SQL_TYPE.MySql, INSTANCE.getConnection().getType());
     }
 
     @Test
-    void getDatabaseUser() {
-        assertEquals(user, ClusterConnection.getDatabaseUser());
+    void getDatabaseUserTest() {
+        assertEquals(INSTANCE.getDatabaseUser(), INSTANCE.getConnection().getDatabaseUser());
     }
 
     @Test
-    void getConnection() throws SQLException, ClassNotFoundException {
+    void getConnectionTest() throws SQLException, ClassNotFoundException {
 
         // connections must rotate
 
@@ -38,19 +54,18 @@ class MariaDB_Cluster_ConnectionTest extends JunitDefaults{
         String connectionString2 = "jdbc:mysql://localhost:23306,localhost:33306,localhost:13306/ClusterTestDB";
         String connectionString3 = "jdbc:mysql://localhost:33306,localhost:13306,localhost:23306/ClusterTestDB";
 
-        Connection connection = ClusterConnection.getConnection();
+        Connection connection = INSTANCE.getConnection().getConnection();
         assertInstanceOf(PooledConnection.class, connection);
 
-        assertEquals(connectionString1, connection.getMetaData().getURL());
+        assertEquals(connectionString2, connection.getMetaData().getURL());
 
-        connection = ClusterConnection.getConnection();
+        connection = INSTANCE.getConnection().getConnection();
         assertInstanceOf(PooledConnection.class, connection);
         assertEquals(connectionString3, connection.getMetaData().getURL());
 
-        connection = ClusterConnection.getConnection();
+        connection = INSTANCE.getConnection().getConnection();
         assertInstanceOf(PooledConnection.class, connection);
-        assertEquals(connectionString2, connection.getMetaData().getURL());
-
+        assertEquals(connectionString1, connection.getMetaData().getURL());
 
 
     }
