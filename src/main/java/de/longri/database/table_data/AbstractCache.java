@@ -42,6 +42,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public abstract class AbstractCache {
 
@@ -167,11 +169,37 @@ public abstract class AbstractCache {
         table.SOURCE = AbstractTable.Source.DB;
         table.SourceThread = Thread.currentThread().getName();
         DatabaseMetaData metaData = st.getConnection().getMetaData();
-        table.SourceConnection = metaData.getURL();
+        table.SourceConnection = getConnectionInfo(metaData.getURL());
 
         LocalDateTime lastModify = getLastModifiedOnDb(table.getTableName());
         table.setDbLastModify(lastModify);
     }
+
+
+    static Pattern pattern;
+
+    static private String getConnectionInfo(String url) {
+
+        if (pattern == null) {
+            String regex = "jdbc:mysql://([^/,:]+:\\d+)";
+            pattern = Pattern.compile(regex);
+        }
+
+        Matcher matcher = pattern.matcher(url);
+
+
+        if (matcher.find()) {
+            String result = matcher.group(1);
+            boolean hasMultipleAddresses = url.substring(matcher.end(1)).contains(",");
+            if (hasMultipleAddresses) {
+                result = "CLUSTER " + result + ",...";
+            }
+            return result;
+        } else {
+            return "No match found for URL: " + url;
+        }
+    }
+
 
     public boolean loadAllFromDisk(DatabaseConnection connection) throws IOException, SQLException, ClassNotFoundException, InterruptedException {
         chkTables();
@@ -262,7 +290,7 @@ public abstract class AbstractCache {
             table.SOURCE = AbstractTable.Source.DB;
             table.SourceThread = Thread.currentThread().getName();
             DatabaseMetaData metaData = st.getConnection().getMetaData();
-            table.SourceConnection = metaData.getURL();
+            table.SourceConnection = getConnectionInfo(metaData.getURL());
 
         } else {
             table.loadFromDisk(getCacheFolder());
