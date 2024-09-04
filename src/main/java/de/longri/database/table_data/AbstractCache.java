@@ -1,3 +1,21 @@
+/*
+ * Copyright (C) 2024 Longri
+ *
+ * This file is part of database.
+ *
+ * database is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * any later version.
+ *
+ * database is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with fxutils. If not, see <https://www.gnu.org/licenses/>.
+ */
 package de.longri.database.table_data;
 
 import de.longri.database.Abstract_Database;
@@ -15,6 +33,10 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class AbstractCache {
 
@@ -23,7 +45,7 @@ public abstract class AbstractCache {
     static final String UNIQUE_ID_SET_LAST_MODIFY_TABLE = "UNIQUE_ID_SET_LAST_MODIFY_TABLE";
     static final String UNIQUE_ID_LOAD_ALL_FROM_DISK = "UNIQUE_ID_LOAD_ALL_FROM_DISK";
 
-    HashMap<String,LocalDateTime> LAST_MODIFY_MAP = new HashMap<>();
+    HashMap<String, LocalDateTime> LAST_MODIFY_MAP = new HashMap<>();
     ArrayList<AbstractTable<AbstractTableDataEntry>> TABLES;
 
     protected final String CACHE_FOLDER;
@@ -119,11 +141,11 @@ public abstract class AbstractCache {
         table.setDbLastModify(lastModify);
     }
 
-    public boolean loadAllFromDisk(DatabaseConnection connection) throws IOException,  SQLException, ClassNotFoundException {
+    public boolean loadAllFromDisk(DatabaseConnection connection) throws IOException, SQLException, ClassNotFoundException {
         chkTables();
         File newCacheFile = new File(getCacheFolder(), "tables_cache.bin");
 
-        boolean anyChanges = false;
+        final AtomicBoolean anyChanges = new AtomicBoolean();
 
         if (newCacheFile.exists()) {
             connection.connect(UNIQUE_ID_LOAD_ALL_FROM_DISK);
@@ -136,34 +158,41 @@ public abstract class AbstractCache {
 
                 StoreBase bitStore = new BitStore(bytes);
                 int tableCount = bitStore.readInt();
+
+                int numberOfThreads = 12;
+                // Thread-Pool erstellen
+                ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
+
+                // CountDownLatch initialisieren
+                CountDownLatch latch = new CountDownLatch(tableCount);
+
                 for (int i = 0; i < tableCount; i++) {
                     String tableName = bitStore.readString();
                     LocalDateTime lastModifiedOnDisk = bitStore.readLocalDateTime();
-                    AbstractTable<AbstractTableDataEntry> table = getTable(tableName);
-
-                    //delete alt data
-                    table.clear();
-
-                    LocalDateTime lastModifiedOnDB = getLastModifiedOnDb(tableName);
-
-                    if (lastModifiedOnDB == null || lastModifiedOnDB.isAfter(lastModifiedOnDisk)) {
-                        //cache is outdated, load from DB
-                        anyChanges = true;
-
-                        ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM " + tableName);
-                        table.add(rs);
-                        table.SOURCE = AbstractTable.Source.DB;
-
-                    } else {
-                        table.loadFromDisk(getCacheFolder());
-                        table.SOURCE = AbstractTable.Source.Disk;
-                    }
-                    table.setDbLastModify(getLastModifiedOnDb(tableName));
+                    executorService.submit(() -> {
+                        try {
+                            // Ihre Methode aufrufen
+                            boolean changed = loadTableFromDisk(tableName, lastModifiedOnDisk, connection);
+                            if (changed) anyChanges.set(true);
+                        } catch (SQLException | NotImplementedException | IOException e) {
+                            throw new RuntimeException(e);
+                        } finally {
+                            // Zähler verringern, wenn die Aufgabe abgeschlossen ist
+                            latch.countDown();
+                        }
+                    });
                 }
+
+                // Warten, bis alle Aufgaben beendet sind
+                latch.await();
+
+                // Thread-Pool herunterfahren
+                executorService.shutdown();
+
             } catch (Exception e) {
                 log.error("loadAllFromDisk", e);
                 log.warn("Destroy Cache and load all from DB");
-                anyChanges = true;
+                anyChanges.set(true);
                 deleteDirectory(getCacheFolder());
                 loadAllFromDB(connection);
             }
@@ -171,14 +200,42 @@ public abstract class AbstractCache {
         } else {
             // if cache not exists, load from DB
             log.debug("loadAllFromDisk, cache folder [{}] not exist, load from DB", newCacheFile.getAbsolutePath());
-            anyChanges = true;
+            anyChanges.set(true);
             loadAllFromDB(connection);
         }
 
 
         logCacheInfo("Load Cache from disk");
+        return anyChanges.get();
+    }
+
+    private boolean loadTableFromDisk(String tableName, LocalDateTime lastModifiedOnDisk, DatabaseConnection connection) throws IOException, SQLException, NotImplementedException {
+        boolean anyChanges = false;
+
+
+        AbstractTable<AbstractTableDataEntry> table = getTable(tableName);
+
+        //delete alt data
+        table.clear();
+
+        LocalDateTime lastModifiedOnDB = getLastModifiedOnDb(tableName);
+
+        if (lastModifiedOnDB == null || lastModifiedOnDB.isAfter(lastModifiedOnDisk)) {
+            //cache is outdated, load from DB
+            anyChanges = true;
+
+            ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM " + tableName);
+            table.add(rs);
+            table.SOURCE = AbstractTable.Source.DB;
+
+        } else {
+            table.loadFromDisk(getCacheFolder());
+            table.SOURCE = AbstractTable.Source.Disk;
+        }
+        table.setDbLastModify(getLastModifiedOnDb(tableName));
         return anyChanges;
     }
+
 
     public void saveAllToDisk() throws IOException, NotImplementedException {
 
@@ -235,7 +292,7 @@ public abstract class AbstractCache {
         directoryToBeDeleted.delete();
     }
 
-    private void loadLAstModifiedFromDB(DatabaseConnection connection) throws IOException,  SQLException, ClassNotFoundException {
+    private void loadLAstModifiedFromDB(DatabaseConnection connection) throws IOException, SQLException, ClassNotFoundException {
 
         log.debug("loadLastModifiedFromDB");
 
