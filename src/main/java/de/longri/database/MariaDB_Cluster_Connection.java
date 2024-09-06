@@ -160,25 +160,6 @@ public class MariaDB_Cluster_Connection extends DatabaseConnection implements Po
     }
 
     @Override
-    public boolean tableExist(String uniqueID, String tblName) throws SQLException {
-        String sql = "SHOW TABLES FROM " + DATABASE_NAME + " LIKE '" + tblName + "';";
-        Statement stmt = null;
-        try {
-            try {
-                connect(uniqueID);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-            stmt = createStatement();
-            ResultSet result = stmt.executeQuery(sql);
-            result.next();
-            return result.getRow() > 0;
-        } finally {
-            disconnect(uniqueID);
-        }
-    }
-
-    @Override
     protected Connection getConnection() throws ClassNotFoundException, SQLException {
         return pool.getConnection();
     }
@@ -255,5 +236,23 @@ public class MariaDB_Cluster_Connection extends DatabaseConnection implements Po
     @Override
     public void disconnect(String uniqueID, boolean fireEvent) {
         throw new RuntimeException("not implemented! Every create statement call give a new connection");
+    }
+
+    @Override
+    public boolean tableExist(String uniqueID, String tblName) {
+        try (Connection connection = getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'yourDatabaseName' AND TABLE_NAME = '" + tblName + "'")) {
+
+            if (resultSet.next()) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (SQLException | ClassNotFoundException ignore) {
+
+        }
+        return false;
     }
 }
