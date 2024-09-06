@@ -242,7 +242,7 @@ public class MariaDB_Cluster_Connection extends DatabaseConnection implements Po
     public boolean tableExist(String uniqueID, String tblName) {
         try (Connection connection = getConnection();
              Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'yourDatabaseName' AND TABLE_NAME = '" + tblName + "'")) {
+             ResultSet resultSet = statement.executeQuery("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '" + DATABASE_NAME + "' AND TABLE_NAME = '" + tblName + "'")) {
 
             if (resultSet.next()) {
                 return true;
