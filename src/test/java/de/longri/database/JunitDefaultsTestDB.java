@@ -58,7 +58,7 @@ public abstract class JunitDefaultsTestDB {
 
 
     void instanceTearDown() throws SQLException, GeneralSecurityException, IOException, ClassNotFoundException {
-         deleteTestDB(databaseName);
+       //  deleteTestDB(databaseName);
     }
 
     public void createTestDB(String dataBaseName) throws GeneralSecurityException, IOException, SQLException, ClassNotFoundException, InterruptedException {

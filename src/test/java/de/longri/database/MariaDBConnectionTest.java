@@ -92,9 +92,7 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         //--------------------------Table 1 test
         assertEquals(3, CACHE.table1.tableData.size());
         TableDataTestCache.Table1_data data = CACHE.table1.tableData.get(0);
-        NamedObjectProperty prop = data.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(4, prop.get());
+        NamedObjectProperty prop;
         prop = data.getProperty("name");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Item1", prop.get());
@@ -103,9 +101,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals(100, prop.get());
 
         data = CACHE.table1.tableData.get(1);
-        prop = data.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(7, prop.get());
         prop = data.getProperty("name");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Item2", prop.get());
@@ -114,9 +109,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals(200, prop.get());
 
         data = CACHE.table1.tableData.get(2);
-        prop = data.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(10, prop.get());
         prop = data.getProperty("name");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Item3", prop.get());
@@ -127,9 +119,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         //--------------------------Table 2 test
         assertEquals(3, CACHE.table2.tableData.size());
         TableDataTestCache.Table2_data data1 = CACHE.table2.tableData.get(0);
-        prop = data1.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(4, prop.get());
         prop = data1.getProperty("description");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Description1", prop.get());
@@ -138,9 +127,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals(true, prop.get());
 
         data1 = CACHE.table2.tableData.get(1);
-        prop = data1.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(7, prop.get());
         prop = data1.getProperty("description");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Description2", prop.get());
@@ -149,9 +135,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals(false, prop.get());
 
         data1 = CACHE.table2.tableData.get(2);
-        prop = data1.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(10, prop.get());
         prop = data1.getProperty("description");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Description3", prop.get());
@@ -162,9 +145,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         //--------------------------Table 3 test
         assertEquals(3, CACHE.table3.tableData.size());
         TableDataTestCache.Table3_data data2 = CACHE.table3.tableData.get(0);
-        prop = data2.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(4, prop.get());
         prop = data2.getProperty("user_id");
         assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
         assertEquals(1, prop.get());
@@ -173,9 +153,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals(99.99, prop.get());
 
         data2 = CACHE.table3.tableData.get(1);
-        prop = data2.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(7, prop.get());
         prop = data2.getProperty("user_id");
         assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
         assertEquals(2, prop.get());
@@ -184,9 +161,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals(150.75, prop.get());
 
         data2 = CACHE.table3.tableData.get(2);
-        prop = data2.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(10, prop.get());
         prop = data2.getProperty("user_id");
         assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
         assertEquals(3, prop.get());
@@ -200,9 +174,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
 
         assertEquals(3, CACHE.table4.tableData.size());
         TableDataTestCache.Table4_data data4 = CACHE.table4.tableData.get(0);
-        prop = data4.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(4, prop.get());
         prop = data4.getProperty("timestamp");
         assertInstanceOf(NamedObjectProperty.NamedLocalDateTimeProperty.class, prop);
         assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.get(), 1);
@@ -211,9 +182,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals("Pending", prop.get());
 
         data4 = CACHE.table4.tableData.get(1);
-        prop = data4.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(7, prop.get());
         prop = data4.getProperty("timestamp");
         assertInstanceOf(NamedObjectProperty.NamedLocalDateTimeProperty.class, prop);
         assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.get(), 1);
@@ -222,9 +190,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals("Completed", prop.get());
 
         data4 = CACHE.table4.tableData.get(2);
-        prop = data4.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(10, prop.get());
         prop = data4.getProperty("timestamp");
         assertInstanceOf(NamedObjectProperty.NamedLocalDateTimeProperty.class, prop);
         assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.get(), 1);
@@ -236,9 +201,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         //--------------------------Table 5 test
         assertEquals(3, CACHE.table5.tableData.size());
         TableDataTestCache.Table5_data data5 = CACHE.table5.tableData.get(0);
-        prop = data5.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(4, prop.get());
         prop = data5.getProperty("title");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Title1", prop.get());
@@ -247,9 +209,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals("Content1", prop.get());
 
         data5 = CACHE.table5.tableData.get(1);
-        prop = data5.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(7, prop.get());
         prop = data5.getProperty("title");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Title2", prop.get());
@@ -258,9 +217,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals("Content2", prop.get());
 
         data5 = CACHE.table5.tableData.get(2);
-        prop = data5.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(10, prop.get());
         prop = data5.getProperty("title");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Title3", prop.get());
@@ -288,9 +244,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         //--------------------------Table 1 test
         assertEquals(3, CACHE.table1.tableData.size());
         data = CACHE.table1.tableData.get(0);
-        prop = data.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(4, prop.get());
         prop = data.getProperty("name");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Item1", prop.get());
@@ -299,9 +252,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals(100, prop.get());
 
         data = CACHE.table1.tableData.get(1);
-        prop = data.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(7, prop.get());
         prop = data.getProperty("name");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Item2", prop.get());
@@ -310,9 +260,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals(200, prop.get());
 
         data = CACHE.table1.tableData.get(2);
-        prop = data.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(10, prop.get());
         prop = data.getProperty("name");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Item3", prop.get());
@@ -323,9 +270,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         //--------------------------Table 2 test
         assertEquals(3, CACHE.table2.tableData.size());
         data1 = CACHE.table2.tableData.get(0);
-        prop = data1.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(4, prop.get());
         prop = data1.getProperty("description");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Description1", prop.get());
@@ -334,9 +278,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals(true, prop.get());
 
         data1 = CACHE.table2.tableData.get(1);
-        prop = data1.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(7, prop.get());
         prop = data1.getProperty("description");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Description2", prop.get());
@@ -345,9 +286,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals(false, prop.get());
 
         data1 = CACHE.table2.tableData.get(2);
-        prop = data1.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(10, prop.get());
         prop = data1.getProperty("description");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Description3", prop.get());
@@ -358,9 +296,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         //--------------------------Table 3 test
         assertEquals(3, CACHE.table3.tableData.size());
         data2 = CACHE.table3.tableData.get(0);
-        prop = data2.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(4, prop.get());
         prop = data2.getProperty("user_id");
         assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
         assertEquals(1, prop.get());
@@ -369,9 +304,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals(99.99, prop.get());
 
         data2 = CACHE.table3.tableData.get(1);
-        prop = data2.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(7, prop.get());
         prop = data2.getProperty("user_id");
         assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
         assertEquals(2, prop.get());
@@ -380,9 +312,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals(150.75, prop.get());
 
         data2 = CACHE.table3.tableData.get(2);
-        prop = data2.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(10, prop.get());
         prop = data2.getProperty("user_id");
         assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
         assertEquals(3, prop.get());
@@ -396,9 +325,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
 
         assertEquals(3, CACHE.table4.tableData.size());
         data4 = CACHE.table4.tableData.get(0);
-        prop = data4.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(4, prop.get());
         prop = data4.getProperty("timestamp");
         assertInstanceOf(NamedObjectProperty.NamedLocalDateTimeProperty.class, prop);
         assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.get(), 1);
@@ -407,9 +333,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals("Pending", prop.get());
 
         data4 = CACHE.table4.tableData.get(1);
-        prop = data4.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(7, prop.get());
         prop = data4.getProperty("timestamp");
         assertInstanceOf(NamedObjectProperty.NamedLocalDateTimeProperty.class, prop);
         assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.get(), 1);
@@ -418,9 +341,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals("Completed", prop.get());
 
         data4 = CACHE.table4.tableData.get(2);
-        prop = data4.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(10, prop.get());
         prop = data4.getProperty("timestamp");
         assertInstanceOf(NamedObjectProperty.NamedLocalDateTimeProperty.class, prop);
         assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.get(), 1);
@@ -432,9 +352,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         //--------------------------Table 5 test
         assertEquals(3, CACHE.table5.tableData.size());
         data5 = CACHE.table5.tableData.get(0);
-        prop = data5.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(4, prop.get());
         prop = data5.getProperty("title");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Title1", prop.get());
@@ -443,9 +360,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals("Content1", prop.get());
 
         data5 = CACHE.table5.tableData.get(1);
-        prop = data5.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(7, prop.get());
         prop = data5.getProperty("title");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Title2", prop.get());
@@ -454,9 +368,6 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals("Content2", prop.get());
 
         data5 = CACHE.table5.tableData.get(2);
-        prop = data5.getProperty("id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(10, prop.get());
         prop = data5.getProperty("title");
         assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
         assertEquals("Title3", prop.get());

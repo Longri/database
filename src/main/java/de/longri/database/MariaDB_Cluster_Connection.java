@@ -129,18 +129,20 @@ public class MariaDB_Cluster_Connection extends DatabaseConnection implements Po
 
     @Override
     public boolean databaseExist() {
-        String UNIQUE_ID = "MariaDB_Cluster_Connection.databaseExist()";
-        try {
-            this.connect(UNIQUE_ID);
-        } catch (Exception e) {
+        try (Connection connection = getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '" + DATABASE_NAME + "'")) {
+
+            if (resultSet.next()) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
             return false;
         }
-        try {
-            this.disconnect(UNIQUE_ID);
-        } catch (SQLException e) {
-            return false;
-        }
-        return true;
     }
 
     @Override
@@ -243,5 +245,15 @@ public class MariaDB_Cluster_Connection extends DatabaseConnection implements Po
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void connect(String uniqueID, boolean fireEvent) {
+        throw new RuntimeException("not implemented! Every create statement call give a new connection");
+    }
+
+    @Override
+    public void disconnect(String uniqueID, boolean fireEvent) {
+        throw new RuntimeException("not implemented! Every create statement call give a new connection");
     }
 }

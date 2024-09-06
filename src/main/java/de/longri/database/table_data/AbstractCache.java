@@ -23,6 +23,7 @@ import com.github.freva.asciitable.Column;
 import com.github.freva.asciitable.HorizontalAlign;
 import de.longri.database.Abstract_Database;
 import de.longri.database.DatabaseConnection;
+import de.longri.database.MariaDB_Cluster_Connection;
 import de.longri.serializable.BitStore;
 import de.longri.serializable.NotImplementedException;
 import de.longri.serializable.StoreBase;
@@ -129,7 +130,7 @@ public abstract class AbstractCache {
     public void loadAllFromDB(DatabaseConnection connection) throws SQLException, ClassNotFoundException, InterruptedException {
         log.debug("loadAllFromDB");
         chkTables();
-        connection.connect(UNIQUE_ID_THREAD_DATA_LOAD_ALL);
+        if (!(connection instanceof MariaDB_Cluster_Connection)) connection.connect(UNIQUE_ID_THREAD_DATA_LOAD_ALL);
         int numberOfThreads = 12;
         ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
         CountDownLatch latch = new CountDownLatch(TABLES.size());
@@ -149,7 +150,7 @@ public abstract class AbstractCache {
         latch.await();
         executorService.shutdown();
 
-        connection.disconnect(UNIQUE_ID_THREAD_DATA_LOAD_ALL);
+        if (!(connection instanceof MariaDB_Cluster_Connection)) connection.disconnect(UNIQUE_ID_THREAD_DATA_LOAD_ALL);
 
         logCacheInfo("Load Cache from DB");
     }
@@ -208,7 +209,7 @@ public abstract class AbstractCache {
         final AtomicBoolean anyChanges = new AtomicBoolean();
 
         if (newCacheFile.exists()) {
-            connection.connect(UNIQUE_ID_LOAD_ALL_FROM_DISK);
+            if (!(connection instanceof MariaDB_Cluster_Connection)) connection.connect(UNIQUE_ID_LOAD_ALL_FROM_DISK);
 
             log.debug("loadAllFromDisk, cache folder: {}", newCacheFile.getAbsolutePath());
             try {
@@ -256,7 +257,7 @@ public abstract class AbstractCache {
                 deleteDirectory(getCacheFolder());
                 loadAllFromDB(connection);
             }
-            connection.disconnect(UNIQUE_ID_LOAD_ALL_FROM_DISK);
+            if (!(connection instanceof MariaDB_Cluster_Connection)) connection.disconnect(UNIQUE_ID_LOAD_ALL_FROM_DISK);
         } else {
             // if cache not exists, load from DB
             log.debug("loadAllFromDisk, cache folder [{}] not exist, load from DB", newCacheFile.getAbsolutePath());
@@ -372,13 +373,13 @@ public abstract class AbstractCache {
         log.debug("loadLastModifiedFromDB");
 
         String sql = "SELECT * FROM last_modified ";
-        connection.connect(UNIQUE_ID_SET_LAST_MODIFY_TABLE);
+        if (!(connection instanceof MariaDB_Cluster_Connection)) connection.connect(UNIQUE_ID_SET_LAST_MODIFY_TABLE);
         ResultSet rs = connection.createStatement().executeQuery(sql);
         while (rs.next()) {
             LocalDateTime lastModifiedOnDb = Abstract_Database.getDateTime(rs.getString("localDateTime"));
             LAST_MODIFY_MAP.put(rs.getString("tableName"), lastModifiedOnDb);
         }
-        connection.disconnect(UNIQUE_ID_SET_LAST_MODIFY_TABLE);
+        if (!(connection instanceof MariaDB_Cluster_Connection)) connection.disconnect(UNIQUE_ID_SET_LAST_MODIFY_TABLE);
     }
 
     private LocalDateTime getLastModifiedOnDb(String tableName) throws SQLException {
