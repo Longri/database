@@ -161,7 +161,18 @@ public class MariaDB_Cluster_Connection extends DatabaseConnection implements Po
 
     @Override
     protected Connection getConnection() throws ClassNotFoundException, SQLException {
-        return pool.getConnection();
+        PooledConnection polledConnection = pool.getConnection();
+
+        if (polledConnection == null) {
+            //load pool
+            try {
+                fillPool();
+            } catch (GeneralSecurityException | IOException e) {
+                throw new RuntimeException(e);
+            }
+            polledConnection = pool.getConnection();
+        }
+        return polledConnection;
     }
 
     private int rotationIndex = 1;
