@@ -138,9 +138,7 @@ public class MariaDB_Cluster_Connection extends DatabaseConnection implements Po
             } else {
                 return false;
             }
-
-        } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
             return false;
         }
     }
@@ -265,5 +263,23 @@ public class MariaDB_Cluster_Connection extends DatabaseConnection implements Po
 
         }
         return false;
+    }
+
+
+    protected void setVersion(int version) throws SQLException {
+        Statement stmt = connection.createStatement();
+
+        //first get the exist id
+        String sql = "SELECT id FROM SCHEME";
+        ResultSet rs = stmt.executeQuery(sql);
+        int id = 0;
+        while (rs.next()) {
+            id = rs.getInt(1);
+        }
+
+        sql = "REPLACE INTO SCHEME (id, version) VALUES('" + id + "', " + Integer.toString(version) + ");";
+
+        stmt.executeUpdate(sql);
+        stmt.close();
     }
 }
