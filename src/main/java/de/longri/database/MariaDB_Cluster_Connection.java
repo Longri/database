@@ -184,7 +184,7 @@ public class MariaDB_Cluster_Connection extends DatabaseConnection implements Po
         for (int i = 0; i < hostCount; i++) {
             int index = (rotationIndex + i) % hostCount;
             Host host = HOST_LIST.get(index);
-            sb.append(host.host).append(":").append(host.port);
+            sb.append(host.host.trim()).append(":").append(host.port.trim());
             if (i < hostCount - 1) sb.append(",");
         }
 

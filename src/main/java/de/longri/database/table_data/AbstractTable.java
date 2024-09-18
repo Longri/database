@@ -18,7 +18,6 @@
  */
 package de.longri.database.table_data;
 
-import de.longri.database.Abstract_Database;
 import de.longri.serializable.BitStore;
 import de.longri.serializable.NotImplementedException;
 import de.longri.serializable.StoreBase;

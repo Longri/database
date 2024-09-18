@@ -119,7 +119,7 @@ public abstract class AbstractCache {
         return cacheFolder;
     }
 
-    private void chkTables() {
+    protected void chkTables() {
         if (TABLES == null) {
             TABLES = new ArrayList<>();
             AbstractTable<AbstractTableDataEntry>[] tables = getTables();
@@ -165,7 +165,7 @@ public abstract class AbstractCache {
 
         Statement st = connection.createStatement();
 
-        ResultSet rs = st.executeQuery("SELECT * FROM " + tableName);
+        ResultSet rs = st.executeQuery("SELECT * FROM " + tableName + " " + getWhereClauseForTable(tableName) + ";");
         table.add(rs);
         table.SOURCE = AbstractTable.Source.DB;
         table.SourceThread = Thread.currentThread().getName();
@@ -176,6 +176,9 @@ public abstract class AbstractCache {
         table.setDbLastModify(lastModify);
     }
 
+    public String getWhereClauseForTable(String tableName) {
+        return "";
+    }
 
     static Pattern pattern;
 
@@ -257,7 +260,8 @@ public abstract class AbstractCache {
                 deleteDirectory(getCacheFolder());
                 loadAllFromDB(connection);
             }
-            if (!(connection instanceof MariaDB_Cluster_Connection)) connection.disconnect(UNIQUE_ID_LOAD_ALL_FROM_DISK);
+            if (!(connection instanceof MariaDB_Cluster_Connection))
+                connection.disconnect(UNIQUE_ID_LOAD_ALL_FROM_DISK);
         } else {
             // if cache not exists, load from DB
             log.debug("loadAllFromDisk, cache folder [{}] not exist, load from DB", newCacheFile.getAbsolutePath());
@@ -270,7 +274,11 @@ public abstract class AbstractCache {
         return anyChanges.get();
     }
 
-    private boolean loadTableFromDisk(String tableName, LocalDateTime lastModifiedOnDisk, DatabaseConnection connection) throws IOException, SQLException, NotImplementedException {
+    protected boolean loadTableFromDisk(String tableName, LocalDateTime lastModifiedOnDisk, DatabaseConnection connection) throws IOException, SQLException, NotImplementedException {
+        return loadTableFromDisk(tableName, lastModifiedOnDisk, connection, getWhereClauseForTable(tableName));
+    }
+
+    protected boolean loadTableFromDisk(String tableName, LocalDateTime lastModifiedOnDisk, DatabaseConnection connection, String whereClause) throws IOException, SQLException, NotImplementedException {
         boolean anyChanges = false;
 
 
@@ -286,7 +294,7 @@ public abstract class AbstractCache {
             anyChanges = true;
 
             Statement st = connection.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM " + tableName);
+            ResultSet rs = st.executeQuery("SELECT * FROM " + tableName + " " + whereClause + ";");
             table.add(rs);
             table.SOURCE = AbstractTable.Source.DB;
             table.SourceThread = Thread.currentThread().getName();
@@ -368,7 +376,7 @@ public abstract class AbstractCache {
         directoryToBeDeleted.delete();
     }
 
-    private void loadLAstModifiedFromDB(DatabaseConnection connection) throws IOException, SQLException, ClassNotFoundException {
+    protected void loadLAstModifiedFromDB(DatabaseConnection connection) throws IOException, SQLException, ClassNotFoundException {
 
         log.debug("loadLastModifiedFromDB");
 
@@ -382,7 +390,7 @@ public abstract class AbstractCache {
         if (!(connection instanceof MariaDB_Cluster_Connection)) connection.disconnect(UNIQUE_ID_SET_LAST_MODIFY_TABLE);
     }
 
-    private LocalDateTime getLastModifiedOnDb(String tableName) throws SQLException {
+    protected LocalDateTime getLastModifiedOnDb(String tableName) throws SQLException {
         return LAST_MODIFY_MAP.get(tableName);
     }
 }
