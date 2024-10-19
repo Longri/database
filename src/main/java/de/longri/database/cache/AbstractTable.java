@@ -27,6 +27,10 @@ public abstract class AbstractTable<T extends AbstractTableData> implements Iter
 
     public abstract Class<?> getDataClass();
 
+    public String getWhereClause() {
+        return "";
+    }
+
     private final static Logger log = LoggerFactory.getLogger(de.longri.database.table_data.AbstractTable.class);
 
     public boolean isEmpty() {
@@ -127,7 +131,7 @@ public abstract class AbstractTable<T extends AbstractTableData> implements Iter
         }
 
         byte[] bytes = bitStore.getArray();
-        File newCacheFile = new File(cacheFolder, this.tableName + "_cache.bin");
+        File newCacheFile = new File(cacheFolder, getCacheFileName());
         if (!newCacheFile.exists()) {
             newCacheFile.getParentFile().mkdirs();
             newCacheFile.createNewFile();
@@ -139,7 +143,7 @@ public abstract class AbstractTable<T extends AbstractTableData> implements Iter
     }
 
     public void loadFromDisk(File cacheFolder) {
-        File newCacheFile = new File(cacheFolder, this.tableName + "_cache.bin");
+        File newCacheFile = new File(cacheFolder, getCacheFileName());
         if (newCacheFile.exists()) {
             try {
                 InputStream is = new FileInputStream(newCacheFile);
@@ -160,6 +164,15 @@ public abstract class AbstractTable<T extends AbstractTableData> implements Iter
                 newCacheFile.delete();
             }
         }
+    }
+
+    String getCacheFileName(){
+        String whereClause = getWhereClause();
+        if(whereClause.isEmpty())
+            return tableName + "_cache.bin";
+        else
+            return tableName + "_cache_" + whereClause.hashCode() + ".bin";
+
     }
 
     @Override

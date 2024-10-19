@@ -129,18 +129,21 @@ public class MariaDB_Cluster_Connection extends DatabaseConnection implements Po
 
     @Override
     public boolean databaseExist() {
-        try (Connection connection = getConnection();
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '" + DATABASE_NAME + "'")) {
-
+        Connection connection = null;
+        try {
+            connection = getConnection();
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '" + DATABASE_NAME + "'");
             if (resultSet.next()) {
+                connection.close();
                 return true;
             } else {
+                connection.close();
                 return false;
             }
-        } catch (Exception e) {
-            return false;
+        } catch (ClassNotFoundException | SQLException ignore) {
         }
+        return false;
     }
 
     @Override

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'de.longri'
-version = '1.10.4'
+version = '1.12.2'
 
 repositories {
     mavenCentral()
@@ -16,7 +16,7 @@ repositories {
 }
 
 ext {
-    junitVersion = '5.11.1'
+    junitVersion = '5.11.2'
 }
 
 
@@ -26,7 +26,7 @@ tasks.withType(JavaCompile) {
 
 dependencies {
     //implementation 'de.longri:crypto:1.6.4' crypto is includet of fxUtils
-    implementation 'de.longri:fxutils:1.17.4'
+    implementation 'de.longri:fxutils:1.18.1'
 
     implementation 'org.slf4j:slf4j-api:2.1.0-alpha1'
     implementation group: 'commons-io', name: 'commons-io', version: '2.17.0'
@@ -35,7 +35,7 @@ dependencies {
 
     implementation group: 'com.healthmarketscience.jackcess', name: 'jackcess', version: "4.0.7"
     implementation 'mysql:mysql-connector-java:8.0.33'
-    implementation group: 'org.firebirdsql.jdbc', name: 'jaybird', version: '5.0.5.java11'
+    implementation group: 'org.firebirdsql.jdbc', name: 'jaybird', version: '5.0.6.java11'
 
 
     implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.14'

@@ -166,7 +166,7 @@ public abstract class AbstractCache {
 
         Statement st = connection.createStatement();
 
-        ResultSet rs = st.executeQuery("SELECT * FROM " + tableName + " " + getWhereClauseForTable(tableName) + ";");
+        ResultSet rs = st.executeQuery("SELECT * FROM " + tableName + " " + table.getWhereClause() + ";");
         table.add(rs);
         table.SOURCE = TableReadSource.DB;
         table.SourceThread = Thread.currentThread().getName();
@@ -175,10 +175,6 @@ public abstract class AbstractCache {
 
         LocalDateTime lastModify = getLastModifiedOnDb(table.getTableName());
         table.setDbLastModify(lastModify);
-    }
-
-    public String getWhereClauseForTable(String tableName) {
-        return "";
     }
 
     static Pattern pattern;
@@ -204,7 +200,6 @@ public abstract class AbstractCache {
             return "No match found for URL: " + url;
         }
     }
-
 
     public boolean loadAllFromDisk() throws SQLException, IOException, ClassNotFoundException, InterruptedException {
         return this.loadAllFromDisk(null); // without connection load from Disk only
@@ -281,10 +276,6 @@ public abstract class AbstractCache {
     }
 
     protected boolean loadTableFromDisk(String tableName, LocalDateTime lastModifiedOnDisk, DatabaseConnection connection) throws IOException, SQLException, NotImplementedException {
-        return loadTableFromDisk(tableName, lastModifiedOnDisk, connection, getWhereClauseForTable(tableName));
-    }
-
-    protected boolean loadTableFromDisk(String tableName, LocalDateTime lastModifiedOnDisk, DatabaseConnection connection, String whereClause) throws IOException, SQLException, NotImplementedException {
         boolean anyChanges = false;
 
 
@@ -300,7 +291,7 @@ public abstract class AbstractCache {
             anyChanges = true;
 
             Statement st = connection.createStatement();
-            ResultSet rs = st.executeQuery("SELECT * FROM " + tableName + " " + whereClause + ";");
+            ResultSet rs = st.executeQuery("SELECT * FROM " + tableName + " " + table.getWhereClause() + ";");
             table.add(rs);
             table.SOURCE = TableReadSource.DB;
             table.SourceThread = Thread.currentThread().getName();
