@@ -30,7 +30,12 @@ import java.util.Properties;
 
 public abstract class JunitDefaultsTestDB {
 
-    public JunitDefaultsTestDB(String testDB) {
+    private final boolean ClusterTest;
+    private final boolean LocalHostTest;
+
+    public JunitDefaultsTestDB(boolean clusterTest, boolean localHostTest, String testDB) {
+        ClusterTest = clusterTest;
+        LocalHostTest = localHostTest;
         databaseName = testDB;
     }
 
@@ -41,24 +46,50 @@ public abstract class JunitDefaultsTestDB {
     Host HOST2 = new Host("localhost", "23306");
     Host HOST3 = new Host("localhost", "33306");
 
+    Host HOST4 = new Host("10.3.1.200", "3306");
+    Host HOST5 = new Host("10.3.1.201", "3306");
 
-    private DatabaseUser user = new SimpleDatabaseUser("admin", "admin-pw");
-    private MariaDB_Cluster_Connection ClusterConnection;
+
+    private DatabaseUser localUser = new SimpleDatabaseUser("admin", "admin-pw");
+    private DatabaseUser serverUser = new SimpleDatabaseUser(System.getProperty("ServerUserName"), System.getProperty("ServerUserPW"));
+    private DatabaseConnection ClusterConnection;
 
     void instanceSetUp() throws SQLException, GeneralSecurityException, IOException, ClassNotFoundException, InterruptedException {
-        testHosts.add(HOST1);
-        testHosts.add(HOST2);
-        testHosts.add(HOST3);
+        if (LocalHostTest) {
+            testHosts.add(HOST1);
+            testHosts.add(HOST2);
+            testHosts.add(HOST3);
+        }else{
+            testHosts.add(HOST4);
+            testHosts.add(HOST5);
+        }
+
 
         //before create a connection create the Database on Cluster
         createTestDB(databaseName);
-        Thread.sleep(500);
-        ClusterConnection = new MariaDB_Cluster_Connection(databaseName, user, testHosts);
+
+        if (ClusterTest) {
+            if (LocalHostTest) {
+                ClusterConnection = new MariaDB_Cluster_Connection(databaseName, localUser, testHosts);
+            }else{
+                ClusterConnection = new MariaDB_Cluster_Connection(databaseName, serverUser, testHosts);
+            }
+        }else{
+            if (LocalHostTest) {
+                ClusterConnection = new MySqlConnection(HOST1.host, HOST1.port, databaseName, localUser);
+            }else{
+                ClusterConnection = new MySqlConnection(HOST4.host, HOST4.port, databaseName, serverUser);
+            }
+        }
+
+
+//
+
     }
 
 
     void instanceTearDown() throws SQLException, GeneralSecurityException, IOException, ClassNotFoundException {
-       //  deleteTestDB(databaseName);
+        deleteTestDB(databaseName);
     }
 
     public void createTestDB(String dataBaseName) throws GeneralSecurityException, IOException, SQLException, ClassNotFoundException, InterruptedException {
@@ -97,8 +128,8 @@ public abstract class JunitDefaultsTestDB {
 
     private Properties getProperties() throws GeneralSecurityException, IOException {
         Properties properties = new Properties();
-        properties.setProperty("user", user.getUserName());
-        properties.setProperty("password", user.getUserPasswordDecrypted());
+        properties.setProperty("user", localUser.getUserName());
+        properties.setProperty("password", localUser.getUserPasswordDecrypted());
         properties.setProperty("MaxPooledStatements", "250");
         properties.put("useUnicode", "true");
         properties.put("characterEncoding", "utf-8");
@@ -131,7 +162,7 @@ public abstract class JunitDefaultsTestDB {
     }
 
     public void deleteTestDB(String dataBaseName) throws GeneralSecurityException, IOException, SQLException, ClassNotFoundException {
-        Abstract_Database db = new Abstract_Database(new MySqlConnection(HOST1.host, HOST1.port, dataBaseName, user)) {
+        Abstract_Database db = new Abstract_Database(new MySqlConnection(HOST1.host, HOST1.port, dataBaseName, localUser)) {
             @Override
             public String getString(String uniqueID, String s) {
                 return null;
@@ -191,8 +222,8 @@ public abstract class JunitDefaultsTestDB {
         String connectionstring = "jdbc:mysql://" + HOST1.toString() + "/" + dbName;
 
         Properties properties = new Properties();
-        properties.setProperty("user", user.getUserName());
-        properties.setProperty("password", user.getUserPasswordDecrypted());
+        properties.setProperty("user", localUser.getUserName());
+        properties.setProperty("password", localUser.getUserPasswordDecrypted());
         properties.setProperty("MaxPooledStatements", "250");
         properties.put("useUnicode", "true");
         properties.put("characterEncoding", "utf-8");
@@ -211,6 +242,6 @@ public abstract class JunitDefaultsTestDB {
     }
 
     protected DatabaseUser getDatabaseUser() {
-        return user;
+        return localUser;
     }
 }

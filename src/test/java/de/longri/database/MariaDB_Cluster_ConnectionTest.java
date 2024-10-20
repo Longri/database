@@ -44,7 +44,7 @@ class MariaDB_Cluster_ConnectionTest extends JunitDefaultsTestDB {
 
 
     MariaDB_Cluster_ConnectionTest() {
-        super("ClusterTestDB");
+        super(true, true, "ClusterTestDB");
     }
 
 

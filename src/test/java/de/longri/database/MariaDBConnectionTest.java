@@ -52,7 +52,7 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
 
 
     MariaDBConnectionTest() {
-        super("TestDB");
+        super(false, true,"TestDB");
     }
 
 
