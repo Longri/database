@@ -22,6 +22,8 @@ public class NamedLocalDateTimeProperty extends AbstractProperty<LocalDateTime> 
 
     @Override
     public boolean valueEquals(LocalDateTime value) {
+        if (this.value == null && value == null) return true;
+        if (this.value == null || value == null) return false;
         return this.value.truncatedTo(ChronoUnit.SECONDS)
                 .equals(value.truncatedTo(ChronoUnit.SECONDS));
     }

@@ -340,12 +340,18 @@ public abstract class AbstractCache {
     private void logCacheInfo(String infoName) {
         log.info("Cache info: " + infoName);
         log.info("\n" + AsciiTable.getTable(TABLES, Arrays.asList(
-                new Column().header("Name").with(table -> table.tableName),
-                new Column().header("entries").with(table -> Integer.toString(table.tableData.size())),
-                new Column().header("fromDB").dataAlign(HorizontalAlign.CENTER).with(table -> table.SOURCE == TableReadSource.Disk ? "" : table.SourceThread),
-                new Column().header("fromDisk").dataAlign(HorizontalAlign.CENTER).with(table -> table.SOURCE == TableReadSource.DB ? "" : table.SourceThread),
-                new Column().header("last modify").with(table -> Abstract_Database.getDateString(table.lastModified)),
-                new Column().header("Connection").with(table -> table.SourceConnection)
+                new Column().header("Name").with(table -> table != null ? table.tableName : "N/A"),
+                new Column().header("entries").with(table -> table != null ? Integer.toString(table.tableData.size()) : "N/A"),
+                new Column().header("fromDB").dataAlign(HorizontalAlign.CENTER).with(table -> {
+                    if (table == null) return "N/A";
+                    return table.SOURCE == TableReadSource.Disk ? "" : table.SourceThread;
+                }),
+                new Column().header("fromDisk").dataAlign(HorizontalAlign.CENTER).with(table -> {
+                    if (table == null) return "N/A";
+                    return table.SOURCE == TableReadSource.DB ? "" : table.SourceThread;
+                }),
+                new Column().header("last modify").with(table -> table != null ? Abstract_Database.getDateString(table.lastModified) : "N/A"),
+                new Column().header("Connection").with(table -> table != null ? table.SourceConnection : "N/A")
         )));
     }
 

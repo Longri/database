@@ -27,11 +27,11 @@ import de.longri.database.properties.PropertyType;
 
 public class TableDataTestCache extends AbstractCache {
 
-    Table1 table1 = new Table1();
-    Table2 table2 = new Table2();
-    Table3 table3 = new Table3();
-    Table4 table4 = new Table4();
-    Table5 table5 = new Table5();
+    Table1 table1;
+    Table2 table2;
+    Table3 table3;
+    Table4 table4;
+    Table5 table5;
 
     public TableDataTestCache(String cachePath) {
         super(cachePath);
@@ -39,10 +39,17 @@ public class TableDataTestCache extends AbstractCache {
 
     @Override
     protected AbstractTable<AbstractTableData>[] getTables() {
+        if (table1 == null) {
+            table1 = new Table1();
+            table2 = new Table2();
+            table3 = new Table3();
+            table4 = new Table4();
+            table5 = new Table5();
+        }
         return new AbstractTable[]{table1, table2, table3, table4, table5};
     }
 
-    static class Table1 extends AbstractTable<Table1_data> {
+    public static class Table1 extends AbstractTable<Table1_data> {
 
         @Override
         public Class<?> getDataClass() {
@@ -64,13 +71,13 @@ public class TableDataTestCache extends AbstractCache {
         }
     }
 
-    static class Table1_data extends AbstractTableData {
+    public static class Table1_data extends AbstractTableData {
         public Table1_data(AbstractTable<? extends AbstractTableData> table) {
             super(table);
         }
     }
 
-    static class Table2 extends AbstractTable<Table2_data> {
+    public static class Table2 extends AbstractTable<Table2_data> {
 
         @Override
         public NamedPropertyType[] getColumnTypes() {
@@ -92,14 +99,14 @@ public class TableDataTestCache extends AbstractCache {
         }
     }
 
-    static class Table2_data extends AbstractTableData {
+    public static class Table2_data extends AbstractTableData {
 
         public Table2_data(AbstractTable<? extends AbstractTableData> table) {
             super(table);
         }
     }
 
-    static class Table3 extends AbstractTable<Table3_data> {
+    public static class Table3 extends AbstractTable<Table3_data> {
 
         @Override
         public NamedPropertyType[] getColumnTypes() {
@@ -121,14 +128,14 @@ public class TableDataTestCache extends AbstractCache {
         }
     }
 
-    static class Table3_data extends AbstractTableData {
+    public static class Table3_data extends AbstractTableData {
 
         public Table3_data(AbstractTable<? extends AbstractTableData> table) {
             super(table);
         }
     }
 
-    static class Table4 extends AbstractTable<Table4_data> {
+    public static class Table4 extends AbstractTable<Table4_data> {
 
         @Override
         public NamedPropertyType[] getColumnTypes() {
@@ -150,14 +157,14 @@ public class TableDataTestCache extends AbstractCache {
         }
     }
 
-    static class Table4_data extends AbstractTableData {
+    public static class Table4_data extends AbstractTableData {
 
         public Table4_data(AbstractTable<? extends AbstractTableData> table) {
             super(table);
         }
     }
 
-    static class Table5 extends AbstractTable<Table5_data> {
+    public static class Table5 extends AbstractTable<Table5_data> {
 
         @Override
         public NamedPropertyType[] getColumnTypes() {
@@ -179,7 +186,7 @@ public class TableDataTestCache extends AbstractCache {
         }
     }
 
-    static class Table5_data extends AbstractTableData {
+    public static class Table5_data extends AbstractTableData {
 
         public Table5_data(AbstractTable<? extends AbstractTableData> table) {
             super(table);
