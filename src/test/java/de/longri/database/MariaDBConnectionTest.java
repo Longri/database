@@ -18,10 +18,11 @@
  */
 package de.longri.database;
 
-import de.longri.database.table_data.AbstractTable;
+import de.longri.database.cache.AbstractTable;
+import de.longri.database.cache.TableReadSource;
+import de.longri.database.properties.*;
 import de.longri.filetransfer.Local_FileTransferHandle;
 import de.longri.serializable.NotImplementedException;
-import de.longri.utils.NamedObjectProperty;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,6 @@ import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -92,81 +92,81 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         //--------------------------Table 1 test
         assertEquals(3, CACHE.table1.tableData.size());
         TableDataTestCache.Table1_data data = CACHE.table1.tableData.get(0);
-        NamedObjectProperty prop;
-        prop = data.getProperty("name");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Item1", prop.get());
-        prop = data.getProperty("value");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(100, prop.get());
+        AbstractProperty prop;
+        prop = data.get("name");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Item1", prop.getValue());
+        prop = data.get("value");
+        assertInstanceOf(NamedIntegerProperty.class, prop);
+        assertEquals(100, prop.getValue());
 
         data = CACHE.table1.tableData.get(1);
-        prop = data.getProperty("name");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Item2", prop.get());
-        prop = data.getProperty("value");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(200, prop.get());
+        prop = data.get("name");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Item2", prop.getValue());
+        prop = data.get("value");
+        assertInstanceOf(NamedIntegerProperty.class, prop);
+        assertEquals(200, prop.getValue());
 
         data = CACHE.table1.tableData.get(2);
-        prop = data.getProperty("name");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Item3", prop.get());
-        prop = data.getProperty("value");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(300, prop.get());
+        prop = data.get("name");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Item3", prop.getValue());
+        prop = data.get("value");
+        assertInstanceOf(NamedIntegerProperty.class, prop);
+        assertEquals(300, prop.getValue());
 
         //--------------------------Table 2 test
         assertEquals(3, CACHE.table2.tableData.size());
         TableDataTestCache.Table2_data data1 = CACHE.table2.tableData.get(0);
-        prop = data1.getProperty("description");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Description1", prop.get());
-        prop = data1.getProperty("is_active");
-        assertInstanceOf(NamedObjectProperty.NamedBoolProperty.class, prop);
-        assertEquals(true, prop.get());
+        prop = data1.get("description");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Description1", prop.getValue());
+        prop = data1.get("is_active");
+        assertInstanceOf(NamedBoolProperty.class, prop);
+        assertEquals(true, prop.getValue());
 
         data1 = CACHE.table2.tableData.get(1);
-        prop = data1.getProperty("description");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Description2", prop.get());
-        prop = data1.getProperty("is_active");
-        assertInstanceOf(NamedObjectProperty.NamedBoolProperty.class, prop);
-        assertEquals(false, prop.get());
+        prop = data1.get("description");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Description2", prop.getValue());
+        prop = data1.get("is_active");
+        assertInstanceOf(NamedBoolProperty.class, prop);
+        assertEquals(false, prop.getValue());
 
         data1 = CACHE.table2.tableData.get(2);
-        prop = data1.getProperty("description");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Description3", prop.get());
-        prop = data1.getProperty("is_active");
-        assertInstanceOf(NamedObjectProperty.NamedBoolProperty.class, prop);
-        assertEquals(true, prop.get());
+        prop = data1.get("description");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Description3", prop.getValue());
+        prop = data1.get("is_active");
+        assertInstanceOf(NamedBoolProperty.class, prop);
+        assertEquals(true, prop.getValue());
 
         //--------------------------Table 3 test
         assertEquals(3, CACHE.table3.tableData.size());
         TableDataTestCache.Table3_data data2 = CACHE.table3.tableData.get(0);
-        prop = data2.getProperty("user_id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(1, prop.get());
-        prop = data2.getProperty("amount");
-        assertInstanceOf(NamedObjectProperty.NamedDoubleProperty.class, prop);
-        assertEquals(99.99, prop.get());
+        prop = data2.get("user_id");
+        assertInstanceOf(NamedIntegerProperty.class, prop);
+        assertEquals(1, prop.getValue());
+        prop = data2.get("amount");
+        assertInstanceOf(NamedDoubleProperty.class, prop);
+        assertEquals(99.99, prop.getValue());
 
         data2 = CACHE.table3.tableData.get(1);
-        prop = data2.getProperty("user_id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(2, prop.get());
-        prop = data2.getProperty("amount");
-        assertInstanceOf(NamedObjectProperty.NamedDoubleProperty.class, prop);
-        assertEquals(150.75, prop.get());
+        prop = data2.get("user_id");
+        assertInstanceOf(NamedIntegerProperty.class, prop);
+        assertEquals(2, prop.getValue());
+        prop = data2.get("amount");
+        assertInstanceOf(NamedDoubleProperty.class, prop);
+        assertEquals(150.75, prop.getValue());
 
         data2 = CACHE.table3.tableData.get(2);
-        prop = data2.getProperty("user_id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(3, prop.get());
-        prop = data2.getProperty("amount");
-        assertInstanceOf(NamedObjectProperty.NamedDoubleProperty.class, prop);
-        assertEquals(250.0, prop.get());
+        prop = data2.get("user_id");
+        assertInstanceOf(NamedIntegerProperty.class, prop);
+        assertEquals(3, prop.getValue());
+        prop = data2.get("amount");
+        assertInstanceOf(NamedDoubleProperty.class, prop);
+        assertEquals(250.0, prop.getValue());
 
         //--------------------------Table 4 test
 
@@ -174,62 +174,62 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
 
         assertEquals(3, CACHE.table4.tableData.size());
         TableDataTestCache.Table4_data data4 = CACHE.table4.tableData.get(0);
-        prop = data4.getProperty("timestamp");
-        assertInstanceOf(NamedObjectProperty.NamedLocalDateTimeProperty.class, prop);
-        assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.get(), 1);
-        prop = data4.getProperty("status");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Pending", prop.get());
+        prop = data4.get("timestamp");
+        assertInstanceOf(NamedLocalDateTimeProperty.class, prop);
+        assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.getValue(), 1);
+        prop = data4.get("status");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Pending", prop.getValue());
 
         data4 = CACHE.table4.tableData.get(1);
-        prop = data4.getProperty("timestamp");
-        assertInstanceOf(NamedObjectProperty.NamedLocalDateTimeProperty.class, prop);
-        assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.get(), 1);
-        prop = data4.getProperty("status");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Completed", prop.get());
+        prop = data4.get("timestamp");
+        assertInstanceOf(NamedLocalDateTimeProperty.class, prop);
+        assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.getValue(), 1);
+        prop = data4.get("status");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Completed", prop.getValue());
 
         data4 = CACHE.table4.tableData.get(2);
-        prop = data4.getProperty("timestamp");
-        assertInstanceOf(NamedObjectProperty.NamedLocalDateTimeProperty.class, prop);
-        assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.get(), 1);
-        prop = data4.getProperty("status");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Failed", prop.get());
+        prop = data4.get("timestamp");
+        assertInstanceOf(NamedLocalDateTimeProperty.class, prop);
+        assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.getValue(), 1);
+        prop = data4.get("status");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Failed", prop.getValue());
 
 
         //--------------------------Table 5 test
         assertEquals(3, CACHE.table5.tableData.size());
         TableDataTestCache.Table5_data data5 = CACHE.table5.tableData.get(0);
-        prop = data5.getProperty("title");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Title1", prop.get());
-        prop = data5.getProperty("content");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Content1", prop.get());
+        prop = data5.get("title");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Title1", prop.getValue());
+        prop = data5.get("content");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Content1", prop.getValue());
 
         data5 = CACHE.table5.tableData.get(1);
-        prop = data5.getProperty("title");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Title2", prop.get());
-        prop = data5.getProperty("content");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Content2", prop.get());
+        prop = data5.get("title");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Title2", prop.getValue());
+        prop = data5.get("content");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Content2", prop.getValue());
 
         data5 = CACHE.table5.tableData.get(2);
-        prop = data5.getProperty("title");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Title3", prop.get());
-        prop = data5.getProperty("content");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Content3", prop.get());
+        prop = data5.get("title");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Title3", prop.getValue());
+        prop = data5.get("content");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Content3", prop.getValue());
 
         //check all tables are loaded from DB
-        assertEquals(AbstractTable.Source.DB, CACHE.table1.SOURCE);
-        assertEquals(AbstractTable.Source.DB, CACHE.table2.SOURCE);
-        assertEquals(AbstractTable.Source.DB, CACHE.table3.SOURCE);
-        assertEquals(AbstractTable.Source.DB, CACHE.table4.SOURCE);
-        assertEquals(AbstractTable.Source.DB, CACHE.table5.SOURCE);
+        assertEquals(TableReadSource.DB, CACHE.table1.SOURCE);
+        assertEquals(TableReadSource.DB, CACHE.table2.SOURCE);
+        assertEquals(TableReadSource.DB, CACHE.table3.SOURCE);
+        assertEquals(TableReadSource.DB, CACHE.table4.SOURCE);
+        assertEquals(TableReadSource.DB, CACHE.table5.SOURCE);
 
         //  #######     load from Disk    ################################################################
         CACHE.loadCache(INSTANCE.getConnection());
@@ -244,80 +244,80 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         //--------------------------Table 1 test
         assertEquals(3, CACHE.table1.tableData.size());
         data = CACHE.table1.tableData.get(0);
-        prop = data.getProperty("name");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Item1", prop.get());
-        prop = data.getProperty("value");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(100, prop.get());
+        prop = data.get("name");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Item1", prop.getValue());
+        prop = data.get("value");
+        assertInstanceOf(NamedIntegerProperty.class, prop);
+        assertEquals(100, prop.getValue());
 
         data = CACHE.table1.tableData.get(1);
-        prop = data.getProperty("name");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Item2", prop.get());
-        prop = data.getProperty("value");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(200, prop.get());
+        prop = data.get("name");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Item2", prop.getValue());
+        prop = data.get("value");
+        assertInstanceOf(NamedIntegerProperty.class, prop);
+        assertEquals(200, prop.getValue());
 
         data = CACHE.table1.tableData.get(2);
-        prop = data.getProperty("name");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Item3", prop.get());
-        prop = data.getProperty("value");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(300, prop.get());
+        prop = data.get("name");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Item3", prop.getValue());
+        prop = data.get("value");
+        assertInstanceOf(NamedIntegerProperty.class, prop);
+        assertEquals(300, prop.getValue());
 
         //--------------------------Table 2 test
         assertEquals(3, CACHE.table2.tableData.size());
         data1 = CACHE.table2.tableData.get(0);
-        prop = data1.getProperty("description");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Description1", prop.get());
-        prop = data1.getProperty("is_active");
-        assertInstanceOf(NamedObjectProperty.NamedBoolProperty.class, prop);
-        assertEquals(true, prop.get());
+        prop = data1.get("description");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Description1", prop.getValue());
+        prop = data1.get("is_active");
+        assertInstanceOf(NamedBoolProperty.class, prop);
+        assertEquals(true, prop.getValue());
 
         data1 = CACHE.table2.tableData.get(1);
-        prop = data1.getProperty("description");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Description2", prop.get());
-        prop = data1.getProperty("is_active");
-        assertInstanceOf(NamedObjectProperty.NamedBoolProperty.class, prop);
-        assertEquals(false, prop.get());
+        prop = data1.get("description");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Description2", prop.getValue());
+        prop = data1.get("is_active");
+        assertInstanceOf(NamedBoolProperty.class, prop);
+        assertEquals(false, prop.getValue());
 
         data1 = CACHE.table2.tableData.get(2);
-        prop = data1.getProperty("description");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Description3", prop.get());
-        prop = data1.getProperty("is_active");
-        assertInstanceOf(NamedObjectProperty.NamedBoolProperty.class, prop);
-        assertEquals(true, prop.get());
+        prop = data1.get("description");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Description3", prop.getValue());
+        prop = data1.get("is_active");
+        assertInstanceOf(NamedBoolProperty.class, prop);
+        assertEquals(true, prop.getValue());
 
         //--------------------------Table 3 test
         assertEquals(3, CACHE.table3.tableData.size());
         data2 = CACHE.table3.tableData.get(0);
-        prop = data2.getProperty("user_id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(1, prop.get());
-        prop = data2.getProperty("amount");
-        assertInstanceOf(NamedObjectProperty.NamedDoubleProperty.class, prop);
-        assertEquals(99.99, prop.get());
+        prop = data2.get("user_id");
+        assertInstanceOf(NamedIntegerProperty.class, prop);
+        assertEquals(1, prop.getValue());
+        prop = data2.get("amount");
+        assertInstanceOf(NamedDoubleProperty.class, prop);
+        assertEquals(99.99, prop.getValue());
 
         data2 = CACHE.table3.tableData.get(1);
-        prop = data2.getProperty("user_id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(2, prop.get());
-        prop = data2.getProperty("amount");
-        assertInstanceOf(NamedObjectProperty.NamedDoubleProperty.class, prop);
-        assertEquals(150.75, prop.get());
+        prop = data2.get("user_id");
+        assertInstanceOf(NamedIntegerProperty.class, prop);
+        assertEquals(2, prop.getValue());
+        prop = data2.get("amount");
+        assertInstanceOf(NamedDoubleProperty.class, prop);
+        assertEquals(150.75, prop.getValue());
 
         data2 = CACHE.table3.tableData.get(2);
-        prop = data2.getProperty("user_id");
-        assertInstanceOf(NamedObjectProperty.NamedIntegerProperty.class, prop);
-        assertEquals(3, prop.get());
-        prop = data2.getProperty("amount");
-        assertInstanceOf(NamedObjectProperty.NamedDoubleProperty.class, prop);
-        assertEquals(250.0, prop.get());
+        prop = data2.get("user_id");
+        assertInstanceOf(NamedIntegerProperty.class, prop);
+        assertEquals(3, prop.getValue());
+        prop = data2.get("amount");
+        assertInstanceOf(NamedDoubleProperty.class, prop);
+        assertEquals(250.0, prop.getValue());
 
         //--------------------------Table 4 test
 
@@ -325,62 +325,62 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
 
         assertEquals(3, CACHE.table4.tableData.size());
         data4 = CACHE.table4.tableData.get(0);
-        prop = data4.getProperty("timestamp");
-        assertInstanceOf(NamedObjectProperty.NamedLocalDateTimeProperty.class, prop);
-        assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.get(), 1);
-        prop = data4.getProperty("status");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Pending", prop.get());
+        prop = data4.get("timestamp");
+        assertInstanceOf(NamedLocalDateTimeProperty.class, prop);
+        assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.getValue(), 1);
+        prop = data4.get("status");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Pending", prop.getValue());
 
         data4 = CACHE.table4.tableData.get(1);
-        prop = data4.getProperty("timestamp");
-        assertInstanceOf(NamedObjectProperty.NamedLocalDateTimeProperty.class, prop);
-        assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.get(), 1);
-        prop = data4.getProperty("status");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Completed", prop.get());
+        prop = data4.get("timestamp");
+        assertInstanceOf(NamedLocalDateTimeProperty.class, prop);
+        assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.getValue(), 1);
+        prop = data4.get("status");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Completed", prop.getValue());
 
         data4 = CACHE.table4.tableData.get(2);
-        prop = data4.getProperty("timestamp");
-        assertInstanceOf(NamedObjectProperty.NamedLocalDateTimeProperty.class, prop);
-        assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.get(), 1);
-        prop = data4.getProperty("status");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Failed", prop.get());
+        prop = data4.get("timestamp");
+        assertInstanceOf(NamedLocalDateTimeProperty.class, prop);
+        assertLocalDate(NOW_TRUNCATED, (LocalDateTime) prop.getValue(), 1);
+        prop = data4.get("status");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Failed", prop.getValue());
 
 
         //--------------------------Table 5 test
         assertEquals(3, CACHE.table5.tableData.size());
         data5 = CACHE.table5.tableData.get(0);
-        prop = data5.getProperty("title");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Title1", prop.get());
-        prop = data5.getProperty("content");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Content1", prop.get());
+        prop = data5.get("title");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Title1", prop.getValue());
+        prop = data5.get("content");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Content1", prop.getValue());
 
         data5 = CACHE.table5.tableData.get(1);
-        prop = data5.getProperty("title");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Title2", prop.get());
-        prop = data5.getProperty("content");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Content2", prop.get());
+        prop = data5.get("title");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Title2", prop.getValue());
+        prop = data5.get("content");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Content2", prop.getValue());
 
         data5 = CACHE.table5.tableData.get(2);
-        prop = data5.getProperty("title");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Title3", prop.get());
-        prop = data5.getProperty("content");
-        assertInstanceOf(NamedObjectProperty.NamedStringProperty.class, prop);
-        assertEquals("Content3", prop.get());
+        prop = data5.get("title");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Title3", prop.getValue());
+        prop = data5.get("content");
+        assertInstanceOf(NamedStringProperty.class, prop);
+        assertEquals("Content3", prop.getValue());
 
         //check all tables are loaded from DB
-        assertEquals(AbstractTable.Source.Disk, CACHE.table1.SOURCE);
-        assertEquals(AbstractTable.Source.Disk, CACHE.table2.SOURCE);
-        assertEquals(AbstractTable.Source.Disk, CACHE.table3.SOURCE);
-        assertEquals(AbstractTable.Source.Disk, CACHE.table4.SOURCE);
-        assertEquals(AbstractTable.Source.Disk, CACHE.table5.SOURCE);
+        assertEquals(TableReadSource.Disk, CACHE.table1.SOURCE);
+        assertEquals(TableReadSource.Disk, CACHE.table2.SOURCE);
+        assertEquals(TableReadSource.Disk, CACHE.table3.SOURCE);
+        assertEquals(TableReadSource.Disk, CACHE.table4.SOURCE);
+        assertEquals(TableReadSource.Disk, CACHE.table5.SOURCE);
 
     }
 

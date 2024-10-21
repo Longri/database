@@ -31,7 +31,7 @@ public abstract class AbstractTable<T extends AbstractTableData> implements Iter
         return "";
     }
 
-    private final static Logger log = LoggerFactory.getLogger(de.longri.database.table_data.AbstractTable.class);
+    private final static Logger log = LoggerFactory.getLogger(de.longri.database.cache.AbstractTable.class);
 
     public boolean isEmpty() {
         return tableData.isEmpty();
@@ -177,7 +177,7 @@ public abstract class AbstractTable<T extends AbstractTableData> implements Iter
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof de.longri.database.table_data.AbstractTable otherTable) {
+        if (other instanceof de.longri.database.cache.AbstractTable otherTable) {
             return tableData.equals(otherTable.tableData);
         }
         return false;
