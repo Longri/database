@@ -51,7 +51,7 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
 
 
     MariaDBConnectionTest() {
-        super(false, false,"TestDB");
+        super("TestDB");
     }
 
 
@@ -77,7 +77,7 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
 
         TableDataTestCache CACHE = new TableDataTestCache(cachePath);
 
-        DatabaseConnection con=INSTANCE.getConnection();
+        DatabaseConnection con = INSTANCE.getConnection();
 
         CACHE.loadCache(con);
 

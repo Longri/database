@@ -157,24 +157,26 @@ public abstract class AbstractCache {
     }
 
     public void loadTableFromDB(DatabaseConnection connection, AbstractTable<AbstractTableData> table) throws SQLException {
-        String tableName = table.getTableName();
+        synchronized (connection){
+            String tableName = table.getTableName();
 
-        //delete alt data
-        table.clear();
+            //delete alt data
+            table.clear();
 
-        //load all data from table and store in an object
+            //load all data from table and store in an object
 
-        Statement st = connection.createStatement();
+            Statement st = connection.createStatement();
 
-        ResultSet rs = st.executeQuery("SELECT * FROM " + tableName + " " + table.getWhereClause() + ";");
-        table.add(rs);
-        table.SOURCE = TableReadSource.DB;
-        table.SourceThread = Thread.currentThread().getName();
-        DatabaseMetaData metaData = st.getConnection().getMetaData();
-        table.SourceConnection = getConnectionInfo(metaData.getURL());
+            ResultSet rs = st.executeQuery("SELECT * FROM " + tableName + " " + table.getWhereClause() + ";");
+            table.add(rs);
+            table.SOURCE = TableReadSource.DB;
+            table.SourceThread = Thread.currentThread().getName();
+            DatabaseMetaData metaData = st.getConnection().getMetaData();
+            table.SourceConnection = getConnectionInfo(metaData.getURL());
 
-        LocalDateTime lastModify = getLastModifiedOnDb(table.getTableName());
-        table.setDbLastModify(lastModify);
+            LocalDateTime lastModify = getLastModifiedOnDb(table.getTableName());
+            table.setDbLastModify(lastModify);
+        }
     }
 
     static Pattern pattern;

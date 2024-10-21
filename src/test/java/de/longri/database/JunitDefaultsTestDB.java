@@ -31,12 +31,20 @@ import java.util.Properties;
 
 public abstract class JunitDefaultsTestDB {
 
+
+    public static enum TEST_DB_LOCATION {
+        LOCALHOST, LOCALHOST_CLUSTER, MariaDB, MariaDB_CLUSTER
+    }
+
+    static final TEST_DB_LOCATION LOCATION = TEST_DB_LOCATION.LOCALHOST_CLUSTER;
+
+
     private final boolean ClusterTest;
     private final boolean LocalHostTest;
 
-    public JunitDefaultsTestDB(boolean clusterTest, boolean localHostTest, String testDB) {
-        ClusterTest = clusterTest;
-        LocalHostTest = localHostTest;
+    public JunitDefaultsTestDB(String testDB) {
+        ClusterTest = LOCATION == TEST_DB_LOCATION.MariaDB_CLUSTER || LOCATION == TEST_DB_LOCATION.LOCALHOST_CLUSTER;
+        LocalHostTest = LOCATION == TEST_DB_LOCATION.LOCALHOST_CLUSTER || LOCATION == TEST_DB_LOCATION.LOCALHOST;
         databaseName = testDB;
     }
 
@@ -319,6 +327,11 @@ public abstract class JunitDefaultsTestDB {
     }
 
     protected DatabaseUser getDatabaseUser() {
-        return localUser;
+        if (LocalHostTest) {
+            return localUser;
+        }else{
+            return serverUser;
+        }
+
     }
 }

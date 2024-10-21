@@ -59,8 +59,8 @@ public abstract class AbstractTableData {
                     doubleProperty.setValue(Double.valueOf(value));
                 }
                 case NamedLocalDateTimeProperty datetimeProperty -> {
-                    LocalDateTime dbDate = Abstract_Database.getDateTime(bitStore.readString());
-                    datetimeProperty.setValue(dbDate);
+                    String value = bitStore.readString();
+                    datetimeProperty.setFromString(value);
                 }
                 default -> {
                 }

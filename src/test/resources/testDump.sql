@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS Table5 (
 -- Create Table for Cacheing
 CREATE TABLE IF NOT EXISTS last_modified (
                                              tableName VARCHAR(255) PRIMARY KEY,
-    localDateTime TIMESTAMP
+    localDateTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
 

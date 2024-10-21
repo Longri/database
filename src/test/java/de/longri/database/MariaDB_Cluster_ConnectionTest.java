@@ -44,7 +44,7 @@ class MariaDB_Cluster_ConnectionTest extends JunitDefaultsTestDB {
 
 
     MariaDB_Cluster_ConnectionTest() {
-        super(true, true, "ClusterTestDB");
+        super("ClusterTestDB");
     }
 
 
@@ -65,6 +65,7 @@ class MariaDB_Cluster_ConnectionTest extends JunitDefaultsTestDB {
 
     @Test
     void getConnectionTest() throws SQLException, ClassNotFoundException {
+        if (LOCATION != TEST_DB_LOCATION.LOCALHOST_CLUSTER) return;
 
         // connections must rotate
 
@@ -84,7 +85,6 @@ class MariaDB_Cluster_ConnectionTest extends JunitDefaultsTestDB {
         connection = INSTANCE.getConnection().getConnection();
         assertInstanceOf(PooledConnection.class, connection);
         assertEquals(connectionString1, connection.getMetaData().getURL());
-
 
     }
 

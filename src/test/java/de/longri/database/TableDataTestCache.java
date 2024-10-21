@@ -141,8 +141,8 @@ public class TableDataTestCache extends AbstractCache {
         public NamedPropertyType[] getColumnTypes() {
             return new NamedPropertyType[]{
                     PropertyBuilder.create("id", PropertyType.Integer),
-                    PropertyBuilder.create("user_id", PropertyType.LocalDateTime),
-                    PropertyBuilder.create("amount", PropertyType.String)
+                    PropertyBuilder.create("timestamp", PropertyType.LocalDateTime),
+                    PropertyBuilder.create("status", PropertyType.String)
             };
         }
 
