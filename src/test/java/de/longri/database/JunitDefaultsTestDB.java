@@ -20,6 +20,7 @@ package de.longri.database;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -50,6 +51,24 @@ public abstract class JunitDefaultsTestDB {
     Host HOST5 = new Host("10.3.1.201", "3306");
 
 
+    static {
+        Properties properties = new Properties();
+        try (FileInputStream input = new FileInputStream("./gradle.properties.local")) {
+            // Laden der Properties-Datei
+            properties.load(input);
+
+            // Setzen aller geladenen Properties als System-Properties
+            properties.forEach((key, value) -> {
+                System.setProperty((String) key, (String) value);
+            });
+
+            System.out.println("Properties wurden erfolgreich geladen und gesetzt.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     private DatabaseUser localUser = new SimpleDatabaseUser("admin", "admin-pw");
     private DatabaseUser serverUser = new SimpleDatabaseUser(System.getProperty("ServerUserName"), System.getProperty("ServerUserPW"));
     private DatabaseConnection ClusterConnection;
@@ -59,7 +78,7 @@ public abstract class JunitDefaultsTestDB {
             testHosts.add(HOST1);
             testHosts.add(HOST2);
             testHosts.add(HOST3);
-        }else{
+        } else {
             testHosts.add(HOST4);
             testHosts.add(HOST5);
         }
@@ -71,13 +90,13 @@ public abstract class JunitDefaultsTestDB {
         if (ClusterTest) {
             if (LocalHostTest) {
                 ClusterConnection = new MariaDB_Cluster_Connection(databaseName, localUser, testHosts);
-            }else{
+            } else {
                 ClusterConnection = new MariaDB_Cluster_Connection(databaseName, serverUser, testHosts);
             }
-        }else{
+        } else {
             if (LocalHostTest) {
                 ClusterConnection = new MySqlConnection(HOST1.host, HOST1.port, databaseName, localUser);
-            }else{
+            } else {
                 ClusterConnection = new MySqlConnection(HOST4.host, HOST4.port, databaseName, serverUser);
             }
         }
@@ -93,15 +112,23 @@ public abstract class JunitDefaultsTestDB {
     }
 
     public void createTestDB(String dataBaseName) throws GeneralSecurityException, IOException, SQLException, ClassNotFoundException, InterruptedException {
+        String hostString;
+        if (LocalHostTest) {
+            hostString = HOST1.toString();
+        } else {
+            hostString = HOST4.toString();
+        }
+
+
         if (dBExists(dataBaseName)) {
             deleteTestDB(dataBaseName);
         }
-        String connectionString = "jdbc:mysql://" + HOST1.toString() + "/?";
+        String connectionString = "jdbc:mysql://" + hostString + "/?";
         Connection sqlConnection = DriverManager.getConnection(connectionString, getProperties());
         sqlConnection.createStatement().execute("CREATE DATABASE IF NOT EXISTS " + dataBaseName + ";");
 
         // change connection to created DB
-        connectionString = "jdbc:mysql://" + HOST1.toString() + "/" + dataBaseName;
+        connectionString = "jdbc:mysql://" + hostString + "/" + dataBaseName;
         sqlConnection = DriverManager.getConnection(connectionString, getProperties());
 
         String[] commands = getMySqlDump(dataBaseName).split(";\n");
@@ -128,8 +155,14 @@ public abstract class JunitDefaultsTestDB {
 
     private Properties getProperties() throws GeneralSecurityException, IOException {
         Properties properties = new Properties();
-        properties.setProperty("user", localUser.getUserName());
-        properties.setProperty("password", localUser.getUserPasswordDecrypted());
+
+        if (LocalHostTest) {
+            properties.setProperty("user", localUser.getUserName());
+            properties.setProperty("password", localUser.getUserPasswordDecrypted());
+        } else {
+            properties.setProperty("user", serverUser.getUserName());
+            properties.setProperty("password", serverUser.getUserPasswordDecrypted());
+        }
         properties.setProperty("MaxPooledStatements", "250");
         properties.put("useUnicode", "true");
         properties.put("characterEncoding", "utf-8");
@@ -162,32 +195,64 @@ public abstract class JunitDefaultsTestDB {
     }
 
     public void deleteTestDB(String dataBaseName) throws GeneralSecurityException, IOException, SQLException, ClassNotFoundException {
-        Abstract_Database db = new Abstract_Database(new MySqlConnection(HOST1.host, HOST1.port, dataBaseName, localUser)) {
-            @Override
-            public String getString(String uniqueID, String s) {
-                return null;
-            }
 
-            @Override
-            public int getLastDatabaseSchemeVersion() {
-                return 0;
-            }
+        Abstract_Database db;
+        if (LocalHostTest) {
+            db = new Abstract_Database(new MySqlConnection(HOST1.host, HOST1.port, dataBaseName, localUser)) {
+                @Override
+                public String getString(String uniqueID, String s) {
+                    return null;
+                }
 
-            @Override
-            public int updateSchemeVersion(int i, int... ints) throws SQLException {
-                return 0;
-            }
+                @Override
+                public int getLastDatabaseSchemeVersion() {
+                    return 0;
+                }
 
-            @Override
-            public String getSqlDump() throws SQLException {
-                return null;
-            }
+                @Override
+                public int updateSchemeVersion(int i, int... ints) throws SQLException {
+                    return 0;
+                }
 
-            @Override
-            public String getMySqlDump() throws SQLException {
-                return null;
-            }
-        };
+                @Override
+                public String getSqlDump() throws SQLException {
+                    return null;
+                }
+
+                @Override
+                public String getMySqlDump() throws SQLException {
+                    return null;
+                }
+            };
+        } else {
+            db = new Abstract_Database(new MySqlConnection(HOST4.host, HOST4.port, dataBaseName, serverUser)) {
+                @Override
+                public String getString(String uniqueID, String s) {
+                    return null;
+                }
+
+                @Override
+                public int getLastDatabaseSchemeVersion() {
+                    return 0;
+                }
+
+                @Override
+                public int updateSchemeVersion(int i, int... ints) throws SQLException {
+                    return 0;
+                }
+
+                @Override
+                public String getSqlDump() throws SQLException {
+                    return null;
+                }
+
+                @Override
+                public String getMySqlDump() throws SQLException {
+                    return null;
+                }
+            };
+        }
+
 
         String sql = "DROP SCHEMA `" + dataBaseName + "`;";
         db.connect("UNIQUE_ID_DELETE_DB");
@@ -218,12 +283,24 @@ public abstract class JunitDefaultsTestDB {
     private Connection getNativeConnection(String dbName) throws ClassNotFoundException, GeneralSecurityException, IOException, SQLException {
         Class.forName("com.mysql.cj.jdbc.Driver");
 
+        String hostString;
+        if (LocalHostTest) {
+            hostString = HOST1.toString();
+        } else {
+            hostString = HOST4.toString();
+        }
 
-        String connectionstring = "jdbc:mysql://" + HOST1.toString() + "/" + dbName;
+        String connectionstring = "jdbc:mysql://" + hostString + "/" + dbName;
 
         Properties properties = new Properties();
-        properties.setProperty("user", localUser.getUserName());
-        properties.setProperty("password", localUser.getUserPasswordDecrypted());
+        if (LocalHostTest) {
+            properties.setProperty("user", localUser.getUserName());
+            properties.setProperty("password", localUser.getUserPasswordDecrypted());
+        } else {
+            properties.setProperty("user", serverUser.getUserName());
+            properties.setProperty("password", serverUser.getUserPasswordDecrypted());
+        }
+
         properties.setProperty("MaxPooledStatements", "250");
         properties.put("useUnicode", "true");
         properties.put("characterEncoding", "utf-8");

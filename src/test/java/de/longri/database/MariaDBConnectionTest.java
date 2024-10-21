@@ -18,7 +18,6 @@
  */
 package de.longri.database;
 
-import de.longri.database.cache.AbstractTable;
 import de.longri.database.cache.TableReadSource;
 import de.longri.database.properties.*;
 import de.longri.filetransfer.Local_FileTransferHandle;
@@ -47,12 +46,12 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
     @AfterAll
     static void tearDown() throws SQLException, GeneralSecurityException, IOException, ClassNotFoundException, InterruptedException {
         Thread.sleep(1000);
-        INSTANCE.instanceTearDown();
+//        INSTANCE.instanceTearDown();
     }
 
 
     MariaDBConnectionTest() {
-        super(false, true,"TestDB");
+        super(false, false,"TestDB");
     }
 
 
