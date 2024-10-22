@@ -157,7 +157,7 @@ public abstract class AbstractCache {
     }
 
     public void loadTableFromDB(DatabaseConnection connection, AbstractTable<AbstractTableData> table) throws SQLException {
-        synchronized (connection){
+        synchronized (connection) {
             String tableName = table.getTableName();
 
             //delete alt data
@@ -181,7 +181,7 @@ public abstract class AbstractCache {
 
     static Pattern pattern;
 
-    static private String getConnectionInfo(String url) {
+    static public String getConnectionInfo(String url) {
 
         if (pattern == null) {
             String regex = "jdbc:mysql://([^/,:]+:\\d+)";
