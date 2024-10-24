@@ -142,7 +142,7 @@ public abstract class AbstractTable<T extends AbstractTableData> implements Iter
 
     }
 
-    public void loadFromDisk(File cacheFolder) {
+    public boolean loadFromDisk(File cacheFolder) {
         File newCacheFile = new File(cacheFolder, getCacheFileName());
         if (newCacheFile.exists()) {
             try {
@@ -158,17 +158,20 @@ public abstract class AbstractTable<T extends AbstractTableData> implements Iter
 
                     this.add(create(bitStore));
                 }
+                return true;
             } catch (Exception e) {
                 log.error("Error with loading data from disk", e);
                 //Anything is wrong with the cache file. Delete it!
                 newCacheFile.delete();
+                return false;
             }
         }
+        return false;
     }
 
-    String getCacheFileName(){
+    String getCacheFileName() {
         String whereClause = getWhereClause();
-        if(whereClause.isEmpty())
+        if (whereClause.isEmpty())
             return tableName + "_cache.bin";
         else
             return tableName + "_cache_" + whereClause.hashCode() + ".bin";

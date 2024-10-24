@@ -141,7 +141,7 @@ public class MariaDB_Cluster_Connection extends DatabaseConnection implements Po
                 connection.close();
                 return false;
             }
-        } catch (ClassNotFoundException | SQLException ignore) {
+        } catch (Exception ignore) {
         }
         return false;
     }

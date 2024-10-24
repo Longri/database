@@ -301,10 +301,16 @@ public abstract class AbstractCache {
             table.SourceConnection = getConnectionInfo(metaData.getURL());
 
         } else {
-            table.loadFromDisk(getCacheFolder());
-            table.SOURCE = TableReadSource.Disk;
-            table.SourceThread = Thread.currentThread().getName();
-            table.SourceConnection = "HDD";
+            boolean loaded = table.loadFromDisk(getCacheFolder());
+            if (loaded) {
+                table.SOURCE = TableReadSource.Disk;
+                table.SourceThread = Thread.currentThread().getName();
+                table.SourceConnection = "HDD";
+            } else {
+                // load new from DB
+                anyChanges = true;
+                loadTableFromDB(connection, table);
+            }
         }
         table.setDbLastModify(getLastModifiedOnDb(tableName));
         return anyChanges;

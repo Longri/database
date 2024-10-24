@@ -36,7 +36,7 @@ public abstract class JunitDefaultsTestDB {
         LOCALHOST, LOCALHOST_CLUSTER, MariaDB, MariaDB_CLUSTER
     }
 
-    static final TEST_DB_LOCATION LOCATION = TEST_DB_LOCATION.LOCALHOST_CLUSTER;
+    static final TEST_DB_LOCATION LOCATION = TEST_DB_LOCATION.MariaDB;
 
 
     private final boolean ClusterTest;
