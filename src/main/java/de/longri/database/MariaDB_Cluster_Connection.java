@@ -182,7 +182,7 @@ public class MariaDB_Cluster_Connection extends DatabaseConnection implements Po
     public PooledConnection createNewPooledConnection() throws SQLException, GeneralSecurityException, IOException {
 
         int hostCount = HOST_LIST.size();
-        StringBuilder sb = new StringBuilder("jdbc:mysql://");
+        StringBuilder sb = new StringBuilder("jdbc:mariadb://");
 
         for (int i = 0; i < hostCount; i++) {
             int index = (rotationIndex + i) % hostCount;

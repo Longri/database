@@ -1,11 +1,11 @@
 plugins {
     id 'java'
     id 'maven-publish'
-    id "com.github.ben-manes.versions" version "0.52.0"
+    id "com.github.ben-manes.versions" version "0.53.0"
 }
 
 group = 'de.longri'
-version = '1.20.0'
+version = '1.22.1'
 
 repositories {
     mavenCentral()
@@ -26,23 +26,24 @@ tasks.withType(JavaCompile) {
 
 dependencies {
     //implementation 'de.longri:crypto:1.6.4' crypto is includet of fxUtils
-    implementation 'de.longri:fxutils:1.20.0'
+    implementation 'de.longri:fxutils:1.22.0'
 
     implementation 'org.slf4j:slf4j-api:2.1.0-alpha1'
-    implementation group: 'commons-io', name: 'commons-io', version: '2.18.0'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.21.0'
 
     implementation 'com.github.freva:ascii-table:1.8.0'
 
-    implementation group: 'com.healthmarketscience.jackcess', name: 'jackcess', version: "4.0.8"
+    implementation group: 'com.healthmarketscience.jackcess', name: 'jackcess', version: "4.0.10"
     implementation 'mysql:mysql-connector-java:8.0.33'
-    implementation group: 'org.firebirdsql.jdbc', name: 'jaybird', version: '6.0.0'
+    implementation group: 'org.firebirdsql.jdbc', name: 'jaybird', version: '6.0.3'
 
 
     implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.14'
     implementation group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.14'
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    testImplementation 'org.junit.jupiter:junit-jupiter:6.1.0-M1'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:6.1.0-M1'
+
 }
 
 test {
@@ -57,9 +58,9 @@ dependencyUpdates {
                 if (candidate.group == 'org.openjfx') {
                     reject('JavaFX dependencies are excluded')
                 }
-                if (candidate.group == 'org.junit.jupiter') {
-                    reject('JUnit dependencies are excluded')
-                }
+//                if (candidate.group == 'org.junit.jupiter') {
+//                    reject('JUnit dependencies are excluded')
+//                }
             }
         }
     }

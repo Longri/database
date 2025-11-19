@@ -36,7 +36,7 @@ public class MariaDBConnection extends MySqlConnection {
         ClusterAdresses = null;
         ClusterPorts = null;
 
-        connectionString = "jdbc:mysql://" + address + ":" + port + "/" + databaseName;
+        connectionString = "jdbc:mariadb://" + address + ":" + port + "/" + databaseName;
     }
 
     public MariaDBConnection(String[] adresses, String[] ports, String databaseName, DatabaseUser user) throws GeneralSecurityException, UnsupportedEncodingException {
@@ -44,7 +44,7 @@ public class MariaDBConnection extends MySqlConnection {
         ClusterAdresses = adresses;
         ClusterPorts = ports;
 
-        StringBuilder connectionStringBuilder = new StringBuilder("jdbc:mysql://");
+        StringBuilder connectionStringBuilder = new StringBuilder("jdbc:mariadb://");
 
         for (int i = 0; i < ClusterAdresses.length; i++) {
             connectionStringBuilder.append(ClusterAdresses[i].trim()).append(":").append(ClusterPorts[i].trim());
@@ -62,7 +62,7 @@ public class MariaDBConnection extends MySqlConnection {
 
         if (ClusterAdresses == null) return super.getConnection();
 
-        Class.forName("com.mysql.cj.jdbc.Driver");
+        Class.forName("org.mariadb.jdbc.Driver");
 
 
         try {

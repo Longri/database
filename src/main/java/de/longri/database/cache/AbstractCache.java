@@ -27,6 +27,7 @@ import de.longri.database.MariaDB_Cluster_Connection;
 import de.longri.serializable.BitStore;
 import de.longri.serializable.NotImplementedException;
 import de.longri.serializable.StoreBase;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -158,6 +159,7 @@ public abstract class AbstractCache {
 
     public void loadTableFromDB(DatabaseConnection connection, AbstractTable<AbstractTableData> table) throws SQLException {
         synchronized (connection) {
+            long begin = System.currentTimeMillis();
             String tableName = table.getTableName();
 
             //delete alt data
@@ -173,7 +175,9 @@ public abstract class AbstractCache {
             table.SourceThread = Thread.currentThread().getName();
             DatabaseMetaData metaData = st.getConnection().getMetaData();
             table.SourceConnection = getConnectionInfo(metaData.getURL());
-
+            long end = System.currentTimeMillis();
+            log.debug("loadTableFromDB: {} ms", (end - begin));
+            table.SOURCE_LOAD_TIME = end - begin;
             LocalDateTime lastModify = getLastModifiedOnDb(table.getTableName());
             table.setDbLastModify(lastModify);
         }
@@ -238,7 +242,6 @@ public abstract class AbstractCache {
                     LocalDateTime lastModifiedOnDisk = bitStore.readLocalDateTime();
                     executorService.submit(() -> {
                         try {
-                            // Ihre Methode aufrufen
                             boolean changed = loadTableFromDisk(tableName, lastModifiedOnDisk, connection);
                             if (changed) anyChanges.set(true);
                         } catch (SQLException | NotImplementedException | IOException e) {
@@ -279,8 +282,6 @@ public abstract class AbstractCache {
 
     protected boolean loadTableFromDisk(String tableName, LocalDateTime lastModifiedOnDisk, DatabaseConnection connection) throws IOException, SQLException, NotImplementedException {
         boolean anyChanges = false;
-
-
         AbstractTable<AbstractTableData> table = getTable(tableName);
 
         //delete alt data
@@ -289,6 +290,9 @@ public abstract class AbstractCache {
         LocalDateTime lastModifiedOnDB = connection == null ? null : getLastModifiedOnDb(tableName);
 
         if ((connection != null && lastModifiedOnDB == null) || (connection != null && lastModifiedOnDB.isAfter(lastModifiedOnDisk))) {
+
+            long begin = System.currentTimeMillis();
+
             //cache is outdated, load from DB
             anyChanges = true;
 
@@ -299,13 +303,17 @@ public abstract class AbstractCache {
             table.SourceThread = Thread.currentThread().getName();
             DatabaseMetaData metaData = st.getConnection().getMetaData();
             table.SourceConnection = getConnectionInfo(metaData.getURL());
-
+            long end = System.currentTimeMillis();
+            table.SOURCE_LOAD_TIME = end - begin;
         } else {
+            long begin = System.currentTimeMillis();
             boolean loaded = table.loadFromDisk(getCacheFolder());
+            long end = System.currentTimeMillis();
             if (loaded) {
                 table.SOURCE = TableReadSource.Disk;
                 table.SourceThread = Thread.currentThread().getName();
                 table.SourceConnection = "HDD";
+                table.SOURCE_LOAD_TIME = end - begin;
             } else {
                 // load new from DB
                 anyChanges = true;
@@ -345,9 +353,13 @@ public abstract class AbstractCache {
         logCacheInfo("Write Cache to disk");
     }
 
-    private void logCacheInfo(String infoName) {
+    public void logCacheInfo(String infoName) {
         log.info("Cache info: " + infoName);
-        log.info("\n" + AsciiTable.getTable(TABLES, Arrays.asList(
+        log.info(getTableString());
+    }
+
+    public String getTableString() {
+        return "\n" + AsciiTable.getTable(TABLES, Arrays.asList(
                 new Column().header("Name").with(table -> table != null ? table.tableName : "N/A"),
                 new Column().header("entries").with(table -> table != null ? Integer.toString(table.tableData.size()) : "N/A"),
                 new Column().header("fromDB").dataAlign(HorizontalAlign.CENTER).with(table -> {
@@ -359,8 +371,9 @@ public abstract class AbstractCache {
                     return table.SOURCE == TableReadSource.DB ? "" : table.SourceThread;
                 }),
                 new Column().header("last modify").with(table -> table != null ? Abstract_Database.getDateString(table.lastModified) : "N/A"),
-                new Column().header("Connection").with(table -> table != null ? table.SourceConnection : "N/A")
-        )));
+                new Column().header("Connection").with(table -> table != null ? table.SourceConnection : "N/A"),
+                new Column().header("loading time").with(table -> table != null ? Long.toString(table.SOURCE_LOAD_TIME) + " ms" : "N/A")
+        ));
     }
 
     public static void deleteDirectory(File directoryToBeDeleted) {

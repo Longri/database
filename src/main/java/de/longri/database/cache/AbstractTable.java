@@ -43,6 +43,17 @@ public abstract class AbstractTable<T extends AbstractTableData> implements Iter
 
     public TableReadSource SOURCE = TableReadSource.unknown;
 
+    /**
+     * Represents the time taken to load the source data for the table.
+     *
+     * It is a configurable value that might indicate load duration
+     * or could be used to measure or track performance metrics related to
+     * the loading process of the associated table.
+     *
+     * The default value of this variable is 0.
+     */
+    public long SOURCE_LOAD_TIME = -1;
+
     public String SourceThread = "";
 
     public String SourceConnection = "";
@@ -155,7 +166,6 @@ public abstract class AbstractTable<T extends AbstractTableData> implements Iter
                 int tableDataSize = bitStore.readInt();
 
                 for (int i = 0; i < tableDataSize; i++) {
-
                     this.add(create(bitStore));
                 }
                 return true;

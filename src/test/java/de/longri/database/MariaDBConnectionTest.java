@@ -87,6 +87,7 @@ class MariaDBConnectionTest extends JunitDefaultsTestDB {
         assertEquals(CACHE.getTable("Table4"), CACHE.table4);
         assertEquals(CACHE.getTable("Table5"), CACHE.table5);
 
+       System.out.println( CACHE.getTableString());
 
         //--------------------------Table 1 test
         assertEquals(3, CACHE.table1.tableData.size());
